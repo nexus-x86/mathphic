@@ -49,3 +49,5 @@ venv/
 !.env.example
 
 .vscode/
+
+desmos_test

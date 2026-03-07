@@ -1,0 +1,1 @@
+DO NOT try to verify your own code output by running commands like `npm run build`, `npm run lint`, or running the application to test it. The user will verify the output themselves. Only write the code.
