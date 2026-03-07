@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { DesmosController } from "../lib/DesmosController";
 import { CanvasController } from "../lib/CanvasController";
 import { ScriptParser } from "../lib/ScriptParser";
+import CommandPrompt from "../components/CommandPrompt";
 
 export default function UnifiedHome() {
   const calculatorRef = useRef<HTMLDivElement>(null);
@@ -209,6 +210,8 @@ say "That concludes the engine demonstration!"`
             backgroundColor: 'transparent' // Let the black background peek through
           }}
         />
+
+        <CommandPrompt />
 
       </div>
 
