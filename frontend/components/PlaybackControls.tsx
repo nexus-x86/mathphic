@@ -78,8 +78,8 @@ export default function PlaybackControls({
                     height: "28px",
                     borderRadius: "6px",
                     border: "none",
-                    background: isRunning ? "rgba(239, 68, 68, 0.2)" : "rgba(20, 184, 166, 0.15)",
-                    color: isRunning ? "#ef4444" : "#14b8a6",
+                    background: isRunning ? "rgba(239, 68, 68, 0.2)" : "rgba(51, 165, 196, 0.15)",
+                    color: isRunning ? "#ef4444" : "#33a5c4",
                     cursor: "pointer",
                     transition: "all 0.2s ease",
                     flexShrink: 0,
@@ -116,7 +116,7 @@ export default function PlaybackControls({
                         left: 0,
                         height: "100%",
                         width: `${progress * 100}%`,
-                        background: "linear-gradient(90deg, #14b8a6, #0ea5e9)",
+                        background: "linear-gradient(90deg, #33a5c4, #0ea5e9)",
                         borderRadius: "2px",
                         transition: isRunning ? "none" : "width 0.3s ease",
                     }}
@@ -131,9 +131,9 @@ export default function PlaybackControls({
                         width: "12px",
                         height: "12px",
                         borderRadius: "50%",
-                        background: "#14b8a6",
+                        background: "#33a5c4",
                         border: "2px solid #0a0a0f",
-                        boxShadow: "0 0 8px rgba(20, 184, 166, 0.4)",
+                        boxShadow: "0 0 8px rgba(51, 165, 196, 0.4)",
                         opacity: isRunning ? 1 : 0.5,
                         transition: "opacity 0.3s ease",
                     }}
@@ -151,7 +151,7 @@ export default function PlaybackControls({
                     flexShrink: 0,
                 }}
             >
-                <span style={{ color: isRunning ? "#14b8a6" : "rgba(255,255,255,0.4)" }}>
+                <span style={{ color: isRunning ? "#33a5c4" : "rgba(255,255,255,0.4)" }}>
                     {formatTime(elapsed)}
                 </span>
                 {" / "}

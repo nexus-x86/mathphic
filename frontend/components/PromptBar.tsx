@@ -7,12 +7,6 @@ interface PromptBarProps {
     isGenerating?: boolean;
 }
 
-const MODES = [
-    { id: "step-by-step", label: "Step by Step", icon: "📐" },
-    { id: "explain", label: "Explain", icon: "💡" },
-    { id: "animation", label: "Animation", icon: "🎬" },
-    { id: "solve", label: "Solve Problem", icon: "🧮" },
-];
 
 export default function PromptBar({ onSubmit, isGenerating }: PromptBarProps) {
     const [text, setText] = useState("");
@@ -79,9 +73,9 @@ export default function PromptBar({ onSubmit, isGenerating }: PromptBarProps) {
                     borderRadius: "14px",
                     padding: "14px 18px",
                     border: "1px solid",
-                    borderColor: isFocused ? "rgba(20, 184, 166, 0.4)" : "rgba(255,255,255,0.08)",
+                    borderColor: isFocused ? "rgba(51, 165, 196, 0.4)" : "rgba(255,255,255,0.08)",
                     boxShadow: isFocused
-                        ? "0 8px 40px rgba(20, 184, 166, 0.15)"
+                        ? "0 8px 40px rgba(51, 165, 196, 0.15)"
                         : "0 4px 24px rgba(0,0,0,0.4)",
                     transition: "all 0.3s ease",
                 }}
@@ -126,7 +120,7 @@ export default function PromptBar({ onSubmit, isGenerating }: PromptBarProps) {
                         border: "none",
                         background:
                             text.trim() && !isGenerating
-                                ? "linear-gradient(135deg, #14b8a6, #0ea5e9)"
+                                ? "linear-gradient(135deg, #33a5c4, #0ea5e9)"
                                 : "rgba(255,255,255,0.06)",
                         color: text.trim() && !isGenerating ? "#000" : "rgba(255,255,255,0.2)",
                         cursor: text.trim() && !isGenerating ? "pointer" : "not-allowed",
@@ -141,7 +135,7 @@ export default function PromptBar({ onSubmit, isGenerating }: PromptBarProps) {
                                 width: "16px",
                                 height: "16px",
                                 border: "2px solid rgba(255,255,255,0.15)",
-                                borderTop: "2px solid #14b8a6",
+                                borderTop: "2px solid #33a5c4",
                                 borderRadius: "50%",
                                 animation: "spin 0.8s linear infinite",
                             }}
@@ -153,55 +147,6 @@ export default function PromptBar({ onSubmit, isGenerating }: PromptBarProps) {
                         </svg>
                     )}
                 </button>
-            </div>
-
-            {/* Mode pills + topic tag */}
-            <div style={{ display: "flex", alignItems: "center", gap: "8px", flexWrap: "wrap", paddingLeft: "4px" }}>
-                {MODES.map((mode) => (
-                    <button
-                        key={mode.id}
-                        onClick={() => setActiveMode(mode.id)}
-                        style={{
-                            padding: "6px 14px",
-                            fontSize: "0.72rem",
-                            fontWeight: activeMode === mode.id ? 600 : 400,
-                            borderRadius: "20px",
-                            border: activeMode === mode.id ? "1px solid #14b8a6" : "1px solid rgba(255,255,255,0.1)",
-                            background:
-                                activeMode === mode.id
-                                    ? "rgba(20, 184, 166, 0.15)"
-                                    : "rgba(255,255,255,0.04)",
-                            color: activeMode === mode.id ? "#14b8a6" : "rgba(255,255,255,0.45)",
-                            cursor: "pointer",
-                            transition: "all 0.2s ease",
-                            fontFamily: "inherit",
-                            display: "flex",
-                            alignItems: "center",
-                            gap: "5px",
-                        }}
-                    >
-                        <span style={{ fontSize: "0.8rem" }}>{mode.icon}</span>
-                        {mode.label}
-                    </button>
-                ))}
-
-                {detectedTopic && (
-                    <span
-                        style={{
-                            padding: "5px 12px",
-                            fontSize: "0.7rem",
-                            borderRadius: "16px",
-                            background: "rgba(20, 184, 166, 0.1)",
-                            color: "#14b8a6",
-                            border: "1px solid rgba(20, 184, 166, 0.2)",
-                            marginLeft: "auto",
-                            fontWeight: 500,
-                            animation: "fadeIn 0.3s ease",
-                        }}
-                    >
-                        {detectedTopic}
-                    </span>
-                )}
             </div>
 
             <style>{`

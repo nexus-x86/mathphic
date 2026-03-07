@@ -8,6 +8,117 @@ import Sidebar from "../../components/Sidebar";
 import PromptBar from "../../components/PromptBar";
 import PlaybackControls from "../../components/PlaybackControls";
 
+function LoadingCanvas() {
+    const canvasRef = useRef<HTMLCanvasElement>(null);
+
+    useEffect(() => {
+        const canvas = canvasRef.current;
+        if (!canvas) return;
+        const ctx = canvas.getContext("2d");
+        if (!ctx) return;
+
+        let animId: number;
+        let progress = 0;
+
+        const draw = () => {
+            const w = canvas.width;
+            const h = canvas.height;
+            ctx.clearRect(0, 0, w, h);
+
+            const pad = { left: 40, right: 16, top: 16, bottom: 28 };
+            const graphW = w - pad.left - pad.right;
+            const graphH = h - pad.top - pad.bottom;
+
+            // Axes
+            ctx.strokeStyle = "rgba(255,255,255,0.18)";
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.moveTo(pad.left, pad.top);
+            ctx.lineTo(pad.left, pad.top + graphH);
+            ctx.lineTo(pad.left + graphW, pad.top + graphH);
+            ctx.stroke();
+
+            // Horizontal asymptote y = 1
+            ctx.strokeStyle = "rgba(255,221,0,0.55)";
+            ctx.lineWidth = 1;
+            ctx.setLineDash([5, 5]);
+            ctx.beginPath();
+            ctx.moveTo(pad.left, pad.top + 4);
+            ctx.lineTo(pad.left + graphW, pad.top + 4);
+            ctx.stroke();
+            ctx.setLineDash([]);
+
+            // Asymptote label
+            ctx.fillStyle = "rgba(255,221,0,0.65)";
+            ctx.font = "10px monospace";
+            ctx.textAlign = "right";
+            ctx.fillText("y=1", pad.left - 6, pad.top + 8);
+            ctx.textAlign = "left";
+
+            // Origin label
+            ctx.fillStyle = "rgba(255,255,255,0.25)";
+            ctx.font = "9px monospace";
+            ctx.fillText("0", pad.left - 8, pad.top + graphH + 2);
+
+            // Animate curve: y = 1 - e^(-5x) + damped wiggles
+            progress = (progress + 0.007) % 1.25;
+            const curveProgress = Math.min(progress, 1);
+            const steps = Math.floor(curveProgress * graphW);
+
+            ctx.strokeStyle = "#33a5c4";
+            ctx.lineWidth = 2;
+            ctx.lineJoin = "round";
+            ctx.beginPath();
+            for (let px = 0; px <= steps; px++) {
+                const xNorm = px / graphW;
+                const asymptote = 1 - Math.exp(-5 * xNorm);
+                const wiggle = Math.exp(-10 * xNorm) * (
+                    0.18 * Math.sin(xNorm * Math.PI * 9) +
+                    0.08 * Math.sin(xNorm * Math.PI * 19) +
+                    0.04 * Math.sin(xNorm * Math.PI * 35)
+                );
+                const yVal = Math.max(0, Math.min(1, asymptote + wiggle));
+                const sx = pad.left + px;
+                const sy = pad.top + 4 + (1 - yVal) * (graphH - 4);
+                px === 0 ? ctx.moveTo(sx, sy) : ctx.lineTo(sx, sy);
+            }
+            ctx.stroke();
+
+            // Glow dot at curve tip
+            if (steps > 0) {
+                const tipXNorm = steps / graphW;
+                const tipAsymptote = 1 - Math.exp(-5 * tipXNorm);
+                const tipWiggle = Math.exp(-4 * tipXNorm) * (
+                    0.18 * Math.sin(tipXNorm * Math.PI * 9) +
+                    0.08 * Math.sin(tipXNorm * Math.PI * 19) +
+                    0.04 * Math.sin(tipXNorm * Math.PI * 35)
+                );
+                const tipYVal = Math.max(0, Math.min(1, tipAsymptote + tipWiggle));
+                const tipX = pad.left + steps;
+                const tipY = pad.top + 4 + (1 - tipYVal) * (graphH - 4);
+                ctx.beginPath();
+                ctx.arc(tipX, tipY, 3, 0, Math.PI * 2);
+                ctx.fillStyle = "#33a5c4";
+                ctx.fill();
+            }
+
+            animId = requestAnimationFrame(draw);
+        };
+        draw();
+
+        return () => cancelAnimationFrame(animId);
+    }, []);
+
+    return (
+        <canvas
+            ref={canvasRef}
+            width={190}
+            height={100}
+            style={{ display: "block" }}
+        />
+    );
+}
+
 export default function AppPage() {
     const calculatorRef = useRef<HTMLDivElement>(null);
     const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -241,43 +352,42 @@ export default function AppPage() {
                             justifyContent: "center",
                             zIndex: 100,
                             pointerEvents: "all",
+                            background: "rgba(8, 8, 14, 0.35)",
+                            backdropFilter: "blur(3px)",
+                            WebkitBackdropFilter: "blur(3px)",
+                            animation: "fadeIn 0.3s ease",
                         }}
                     >
                         <div
                             style={{
-                                background: "rgba(10, 10, 16, 0.9)",
-                                backdropFilter: "blur(16px)",
-                                WebkitBackdropFilter: "blur(16px)",
-                                border: "1px solid rgba(255, 255, 255, 0.08)",
-                                borderRadius: "16px",
-                                padding: "32px 48px",
                                 display: "flex",
                                 flexDirection: "column",
                                 alignItems: "center",
-                                gap: "16px",
-                                boxShadow: "0 8px 40px rgba(0, 0, 0, 0.5)",
-                                animation: "fadeIn 0.3s ease",
+                                gap: "20px",
                             }}
                         >
                             <div
                                 style={{
-                                    width: "32px",
-                                    height: "32px",
-                                    border: "3px solid rgba(255, 255, 255, 0.1)",
-                                    borderTop: "3px solid #14b8a6",
-                                    borderRadius: "50%",
-                                    animation: "spin 0.8s linear infinite",
-                                }}
-                            />
-                            <span
-                                style={{
-                                    color: "#94a3b8",
-                                    fontSize: "0.85rem",
-                                    fontFamily: "monospace",
-                                    letterSpacing: "0.5px",
+                                    background: "rgba(10, 10, 16, 0.9)",
+                                    border: "1px solid rgba(255, 255, 255, 0.08)",
+                                    borderRadius: "12px",
+                                    padding: "20px 24px",
+                                    boxShadow: "0 8px 40px rgba(0, 0, 0, 0.5)",
                                 }}
                             >
-                                Generating instructions...
+                                <LoadingCanvas />
+                            </div>
+                            <span
+                                style={{
+                                    color: "rgba(255,255,255,0.45)",
+                                    fontSize: "0.8rem",
+                                    fontFamily: "monospace",
+                                    letterSpacing: "2px",
+                                    textTransform: "uppercase",
+                                    animation: "pulse 1.8s ease-in-out infinite",
+                                }}
+                            >
+                                Generating...
                             </span>
                         </div>
                     </div>
@@ -293,12 +403,13 @@ export default function AppPage() {
             </div>
 
             <style>{`
-        @keyframes spin {
-          to { transform: rotate(360deg); }
-        }
         @keyframes fadeIn {
-          from { opacity: 0; transform: scale(0.95); }
-          to { opacity: 1; transform: scale(1); }
+          from { opacity: 0; }
+          to { opacity: 1; }
+        }
+        @keyframes pulse {
+          0%, 100% { opacity: 0.45; }
+          50% { opacity: 0.9; }
         }
       `}</style>
         </div>

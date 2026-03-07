@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import Link from "next/link";
 
 interface SidebarProps {
     settings: {
@@ -20,7 +21,7 @@ interface SidebarProps {
 export default function Sidebar({ settings, onSettingsChange }: SidebarProps) {
     const [activeTab, setActiveTab] = useState<"settings" | "history">("settings");
 
-    const conceptLabels = ["High School", "Undergraduate", "Graduate"];
+    const conceptLabels = ["High School", "Early Undergrad", "Late Undergrad"];
 
     return (
         <div
@@ -37,7 +38,8 @@ export default function Sidebar({ settings, onSettingsChange }: SidebarProps) {
             }}
         >
             {/* Logo */}
-            <div
+            <Link
+                href="/"
                 style={{
                     padding: "20px 24px 0",
                     fontSize: "0.8rem",
@@ -45,10 +47,12 @@ export default function Sidebar({ settings, onSettingsChange }: SidebarProps) {
                     letterSpacing: "3px",
                     color: "#e2e8f0",
                     textTransform: "uppercase",
+                    textDecoration: "none",
+                    display: "block",
                 }}
             >
                 MATHVIZ
-            </div>
+            </Link>
 
             {/* Tabs */}
             <div
@@ -68,10 +72,10 @@ export default function Sidebar({ settings, onSettingsChange }: SidebarProps) {
                             padding: "10px 0",
                             fontSize: "0.8rem",
                             fontWeight: activeTab === tab ? 600 : 400,
-                            color: activeTab === tab ? "#14b8a6" : "rgba(255,255,255,0.4)",
+                            color: activeTab === tab ? "#33a5c4" : "rgba(255,255,255,0.4)",
                             background: "none",
                             border: "none",
-                            borderBottom: activeTab === tab ? "2px solid #14b8a6" : "2px solid transparent",
+                            borderBottom: activeTab === tab ? "2px solid #33a5c4" : "2px solid transparent",
                             cursor: "pointer",
                             transition: "all 0.2s ease",
                             textTransform: "capitalize",
@@ -167,7 +171,7 @@ export default function Sidebar({ settings, onSettingsChange }: SidebarProps) {
                                 onChange={(e) => onSettingsChange("conceptLevel", parseInt(e.target.value))}
                                 style={{
                                     width: "100%",
-                                    accentColor: "#14b8a6",
+                                    accentColor: "#33a5c4",
                                     cursor: "pointer",
                                 }}
                             />
@@ -184,7 +188,7 @@ export default function Sidebar({ settings, onSettingsChange }: SidebarProps) {
                                     <span
                                         key={label}
                                         style={{
-                                            color: settings.conceptLevel === i ? "#14b8a6" : undefined,
+                                            color: settings.conceptLevel === i ? "#33a5c4" : undefined,
                                             fontWeight: settings.conceptLevel === i ? 600 : 400,
                                         }}
                                     >
@@ -249,8 +253,8 @@ export default function Sidebar({ settings, onSettingsChange }: SidebarProps) {
                     fontFamily: "inherit",
                 }}
                 onMouseEnter={(e) => {
-                    e.currentTarget.style.color = "#14b8a6";
-                    e.currentTarget.style.background = "rgba(20, 184, 166, 0.05)";
+                    e.currentTarget.style.color = "#33a5c4";
+                    e.currentTarget.style.background = "rgba(51, 165, 196, 0.05)";
                 }}
                 onMouseLeave={(e) => {
                     e.currentTarget.style.color = "rgba(255,255,255,0.5)";
@@ -279,7 +283,7 @@ function ToggleRow({ label, value, onChange }: { label: string; value: boolean; 
                     height: "22px",
                     borderRadius: "11px",
                     border: "none",
-                    background: value ? "#14b8a6" : "rgba(255,255,255,0.12)",
+                    background: value ? "#33a5c4" : "rgba(255,255,255,0.12)",
                     cursor: "pointer",
                     position: "relative",
                     transition: "background 0.2s ease",
@@ -404,7 +408,7 @@ function ActionButton({ label, variant }: { label: string; variant: "primary" | 
                 fontWeight: 600,
                 borderRadius: "8px",
                 border: isPrimary ? "none" : "1px solid rgba(255,255,255,0.1)",
-                background: isPrimary ? "#14b8a6" : "rgba(255,255,255,0.04)",
+                background: isPrimary ? "#33a5c4" : "rgba(255,255,255,0.04)",
                 color: isPrimary ? "#000" : "rgba(255,255,255,0.6)",
                 cursor: "pointer",
                 transition: "all 0.2s ease",
@@ -420,7 +424,7 @@ function ActionButton({ label, variant }: { label: string; variant: "primary" | 
             }}
             onMouseLeave={(e) => {
                 if (isPrimary) {
-                    e.currentTarget.style.background = "#14b8a6";
+                    e.currentTarget.style.background = "#33a5c4";
                 } else {
                     e.currentTarget.style.background = "rgba(255,255,255,0.04)";
                 }
