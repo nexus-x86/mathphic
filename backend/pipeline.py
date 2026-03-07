@@ -158,7 +158,7 @@ def run_pipeline(user_message: str):
     print(f"Total time elapsed: {end_time - start_time:.2f} seconds\n")
 
     #return plan, script_v1, validation_feedback, critic_feedback, script_v2
-    return plan
+    return script_v1
 
 if __name__ == "__main__":
     test_msg = "I don't understand an epsilon delta proof."

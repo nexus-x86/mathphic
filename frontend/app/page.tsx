@@ -34,12 +34,15 @@ export default function Home() {
       const data = await response.json();
       console.log("Received backend instructions:", data.instructions);
 
-      // Just showing a generic response for now, the user requested only log or empty handles
+      const instructionsList = data.instructions && data.instructions.length > 0
+        ? data.instructions.join("\n")
+        : "No instructions received.";
+
       setMessages((prev) => [
         ...prev,
         {
           role: "system",
-          content: "Received instructions from backend. Check the console.",
+          content: instructionsList,
         },
       ]);
     } catch (error) {
@@ -77,16 +80,15 @@ export default function Home() {
             messages.map((msg, idx) => (
               <div
                 key={idx}
-                className={`flex w-fit max-w-[80%] flex-col rounded-2xl px-5 py-3 ${
-                  msg.role === "user"
+                className={`flex w-fit max-w-[80%] flex-col rounded-2xl px-5 py-3 ${msg.role === "user"
                     ? "self-end bg-blue-600 text-white"
                     : "self-start bg-zinc-200 text-zinc-900 dark:bg-zinc-800 dark:text-zinc-100"
-                }`}
+                  }`}
               >
                 <span className="text-sm font-semibold mb-1 opacity-70">
                   {msg.role === "user" ? "You" : "System"}
                 </span>
-                <span className="leading-relaxed">{msg.content}</span>
+                <span className="leading-relaxed whitespace-pre-wrap">{msg.content}</span>
               </div>
             ))
           )}
