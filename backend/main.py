@@ -3,7 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 import asyncio
 
-from pipeline import run_pipeline
+from backend.pipeline import run_pipeline
 
 app = FastAPI()
 
