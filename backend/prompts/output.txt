@@ -1,0 +1,171 @@
+resetViewport
+
+switchView "equations"
+
+renderText "title" "The Riemann Definition of Integrability" "#FFFF00" 0 0
+renderEquation "integral" "\int_a^b f(x)\, dx" "#58C4DD" 0 80
+say "What does it truly mean to find the area under a curve? We write this integral symbol, but for a wavy or jagged function, what does area rigorously mean?"
+
+renderText "sub1" "Intuition: area under the curve" "#83C167" 0 160
+say "Intuitively, we know this represents the area under the curve from a to b. But intuition alone is not mathematics."
+
+renderText "sub2" "Problem: how do we choose rectangle heights?" "#FC6255" 0 240
+say "To approximate this area, we use rectangles. But since we can choose the height of each rectangle in many ways, we need a rule that guarantees everyone arrives at the exact same final answer."
+
+free "sub1"
+free "sub2"
+free "title"
+free "integral"
+
+switchView "desmos"
+
+zoomToPoint 3 2 7
+
+plotEquation "curve" "y=-\frac{1}{3}(x-3)^2+4" "#58C4DD"
+
+say "Here is a smooth parabolic curve over the interval from one to five. Watch what happens when we place four rectangles underneath it and move the sample point."
+
+plotEquation "rect1" "0 \le y \le -\frac{1}{3}(1+t-3)^2+4 \left\{1 \le x \le 2\right\}" "#83C167"
+plotEquation "rect2" "0 \le y \le -\frac{1}{3}(2+t-3)^2+4 \left\{2 \le x \le 3\right\}" "#83C167"
+plotEquation "rect3" "0 \le y \le -\frac{1}{3}(3+t-3)^2+4 \left\{3 \le x \le 4\right\}" "#83C167"
+plotEquation "rect4" "0 \le y \le -\frac{1}{3}(4+t-3)^2+4 \left\{4 \le x \le 5\right\}" "#83C167"
+
+animateDottedEquation "sweep" "x=1+t" "t" 0 1 "#FFFF00" 3000
+say "As the sample point sweeps from the left to the right of each sub-interval, the rectangle heights rise and fall with the function."
+wait 2000
+
+free "sweep"
+animateDottedEquation "sweep2" "x=2+t" "t" 0 1 "#FFFF00" 3000
+say "For a coarse grid, our area estimate wobbles depending on where we measure. We need a way to eliminate this wobble."
+wait 2000
+
+free "sweep2"
+free "rect1"
+free "rect2"
+free "rect3"
+free "rect4"
+free "curve"
+
+switchView "equations"
+
+renderText "title2" "Bounding the Truth: Darboux Sums" "#FFFF00" 0 0
+say "Instead of picking arbitrary sample points, mathematicians consider the two extreme cases."
+
+renderEquation "upper" "U_n = \sum_{i=1}^{n} M_i \,\Delta x_i \quad M_i = \sup_{x \in [x_{i-1}, x_i]} f(x)" "#FF862F" 0 80
+say "The Upper Sum uses the supremum, the highest value of f in each sub-interval, giving the largest possible rectangle area."
+
+renderEquation "lower" "L_n = \sum_{i=1}^{n} m_i \,\Delta x_i \quad m_i = \inf_{x \in [x_{i-1}, x_i]} f(x)" "#58C4DD" 0 160
+say "The Lower Sum uses the infimum, the lowest value of f in each sub-interval, giving the smallest possible rectangle area."
+
+renderEquation "squeeze" "L_n \;\le\; \int_a^b f(x)\,dx \;\le\; U_n" "#83C167" 0 240
+say "Together they trap the true area. The integral is squeezed between the Lower Sum and the Upper Sum, no matter what."
+
+free "title2"
+free "upper"
+free "lower"
+free "squeeze"
+
+switchView "desmos"
+
+zoomToPoint 3 2 7
+
+plotEquation "curve2" "y=-\frac{1}{3}(x-3)^2+4" "#58C4DD"
+
+plotEquation "lowerSum" "0 \le y \le \min\left(-\frac{1}{3}(1-3)^2+4,\,-\frac{1}{3}(2-3)^2+4\right) \left\{1 \le x \le 2\right\}" "#58C4DD"
+plotEquation "lowerSum2" "0 \le y \le \min\left(-\frac{1}{3}(2-3)^2+4,\,-\frac{1}{3}(3-3)^2+4\right) \left\{2 \le x \le 3\right\}" "#58C4DD"
+plotEquation "lowerSum3" "0 \le y \le \min\left(-\frac{1}{3}(3-3)^2+4,\,-\frac{1}{3}(4-3)^2+4\right) \left\{3 \le x \le 4\right\}" "#58C4DD"
+plotEquation "lowerSum4" "0 \le y \le \min\left(-\frac{1}{3}(4-3)^2+4,\,-\frac{1}{3}(5-3)^2+4\right) \left\{4 \le x \le 5\right\}" "#58C4DD"
+
+plotEquation "upperSum" "0 \le y \le \max\left(-\frac{1}{3}(1-3)^2+4,\,-\frac{1}{3}(2-3)^2+4\right) \left\{1 \le x \le 2\right\}" "#FF862F"
+plotEquation "upperSum2" "0 \le y \le \max\left(-\frac{1}{3}(2-3)^2+4,\,-\frac{1}{3}(3-3)^2+4\right) \left\{2 \le x \le 3\right\}" "#FF862F"
+plotEquation "upperSum3" "0 \le y \le \max\left(-\frac{1}{3}(3-3)^2+4,\,-\frac{1}{3}(4-3)^2+4\right) \left\{3 \le x \le 4\right\}" "#FF862F"
+plotEquation "upperSum4" "0 \le y \le \max\left(-\frac{1}{3}(4-3)^2+4,\,-\frac{1}{3}(5-3)^2+4\right) \left\{4 \le x \le 5\right\}" "#FF862F"
+
+say "The blue rectangles show the Lower Sum, always staying beneath the curve. The orange rectangles show the Upper Sum, always reaching above it. The gap between them is our uncertainty."
+wait 2000
+
+free "lowerSum"
+free "lowerSum2"
+free "lowerSum3"
+free "lowerSum4"
+free "upperSum"
+free "upperSum2"
+free "upperSum3"
+free "upperSum4"
+
+animateDottedEquation "nSweep" "x=1+t" "t" 0 4 "#FFFF00" 4000
+say "Now watch as the number of partitions grows. The rectangles become thinner and thinner."
+wait 2000
+
+free "nSweep"
+
+plotEquation "lowerFine" "0 \le y \le -\frac{1}{3}(x-3)^2+4 \left\{1 \le x \le 5\right\}" "#58C4DD"
+say "As the rectangles get thinner, the Upper and Lower sums squeeze together. The gap between them vanishes, and both converge to the exact area under the curve."
+wait 2000
+
+free "lowerFine"
+free "curve2"
+
+switchView "equations"
+
+renderText "title3" "The Formal Definition of Riemann Integrability" "#FFFF00" 0 0
+
+renderEquation "limit" "\lim_{n \to \infty} \left( U_n - L_n \right) = 0" "#FF862F" 0 80
+say "Formally, a bounded function f is Riemann integrable on the interval a to b if and only if this limit equals zero."
+
+renderText "def1" "If this holds, both sums converge to one unique number:" "#83C167" 0 160
+renderEquation "defInt" "U_n \to \int_a^b f(x)\,dx \leftarrow L_n" "#58C4DD" 0 240
+say "When the gap vanishes, the Upper and Lower sums both collapse to a single unambiguous value. That value is the Riemann integral."
+
+renderText "def2" "Continuous functions always pass this test." "#9A72AC" 0 320
+say "Any continuous function, and in fact any function with only finitely many jump discontinuities, always satisfies this condition and is therefore Riemann integrable."
+
+free "title3"
+free "limit"
+free "def1"
+free "defInt"
+free "def2"
+
+switchView "desmos"
+
+zoomToPoint 1 1 6
+
+plotEquation "dirichletHigh" "y=1 \left\{0 \le x \le 2\right\}" "#FF862F"
+plotEquation "dirichletLow" "y=0 \left\{0 \le x \le 2\right\}" "#58C4DD"
+
+say "Now consider a bizarre function. It equals one at every rational number and zero at every irrational number. We can represent its two extreme values with these two lines."
+
+plotEquation "upperDirichlet" "0 \le y \le 1 \left\{0 \le x \le 2\right\}" "#FF862F"
+
+say "Every sub-interval, no matter how tiny, contains both rational and irrational numbers. So the supremum in every interval is always one, and the infimum is always zero."
+
+animateDottedEquation "partSweep" "x=t" "t" 0 2 "#FFFF00" 4000
+say "Watch as we increase the number of partitions. The orange Upper Sum stays a solid block at height one."
+wait 2000
+
+free "partSweep"
+
+say "And the blue Lower Sum stays completely flat at height zero. No matter how many rectangles we draw, the gap never closes."
+wait 2000
+
+free "upperDirichlet"
+free "dirichletHigh"
+free "dirichletLow"
+
+switchView "equations"
+
+renderText "summaryTitle" "Summary: The Essence of the Integral" "#FFFF00" 0 0
+
+renderEquation "s1" "1.\; \text{Approximate area with rectangles over a partition}" "#83C167" 0 80
+say "First: to find the area under a curve, we approximate with rectangles over a partition of the interval."
+
+renderEquation "s2" "2.\; L_n \le \int_a^b f(x)\,dx \le U_n" "#58C4DD" 0 160
+say "Second: the true area is always trapped between the Lower Sum using minimum heights and the Upper Sum using maximum heights."
+
+renderEquation "s3" "3.\; f \text{ is Riemann Integrable} \iff \lim_{n\to\infty}(U_n - L_n) = 0" "#FF862F" 0 240
+say "Third: a function is Riemann integrable if and only if this gap shrinks to zero in the limit."
+
+renderEquation "s4" "4.\; U_n - L_n \not\to 0 \implies \text{integral undefined}" "#FC6255" 0 320
+say "And fourth: if the gap never closes, as with the Dirichlet function, the Riemann integral simply does not exist."
+
+say "Riemann integrability is ultimately a test of whether our rectangular approximations can uniquely agree on a single area. When they do, the integral is born."

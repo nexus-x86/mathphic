@@ -3,4 +3,3 @@ run-frontend:
 
 run-backend:
 	bash -c "source ./backend/.venv/bin/activate && uvicorn backend.main:app --reload"
-	

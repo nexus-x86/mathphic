@@ -10,7 +10,7 @@ export async function GET(req: Request) {
 
     const apiKey = process.env.ELEVENLAB_KEY;
     // Common default voice (e.g., George or Rachel)
-    const voiceId = "JBFqnCBsd6RMkjVDRZzb";
+    const voiceId = "uh5qBlKfjqFl7XXhFnJi";
 
     try {
         const response = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${voiceId}/stream`, {

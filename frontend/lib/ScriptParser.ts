@@ -96,7 +96,12 @@ export class ScriptParser {
         const parser = new ScriptParser();
 
         parser.registerCommand('wait', async (args) => {
-            const ms = parseFloat(args[0] as string);
+            let ms = parseFloat(args[0] as string);
+
+            if (ms > 3000) {
+                ms = 3000;
+            }
+
             if (!isNaN(ms)) {
                 await new Promise(resolve => setTimeout(resolve, ms));
             }
@@ -179,6 +184,19 @@ export class ScriptParser {
             }
         });
 
+        parser.registerCommand('renderText', (args) => {
+            const id = args[0] as string;
+            const text = args[1] as string;
+            const tex = `\\text{${text}}`;
+            const color = (args[2] as string) || '#ffffff';
+            const offsetX = args[3] !== undefined ? parseFloat(args[3] as string) : 0;
+            const offsetY = args[4] !== undefined ? parseFloat(args[4] as string) : 0;
+
+            if ((controller as any).renderEquation) {
+                (controller as any).renderEquation(id, tex, color, offsetX, offsetY);
+            }
+        });
+
         parser.registerCommand('transformEquation', async (args) => {
             const id = args[0] as string;
             const tex = args[1] as string;
@@ -232,6 +250,9 @@ export class ScriptParser {
 
         parser.registerCommand('switchView', (args) => {
             if (args.length > 0) {
+                // Clear all contents from both views before switching
+                desmos.freeAll();
+                if (canvas.freeAll) canvas.freeAll();
                 setView(args[0]);
             }
         });
@@ -312,6 +333,16 @@ export class ScriptParser {
         parser.registerCommand('renderEquation', (args) => {
             const id = args[0] as string;
             const tex = args[1] as string;
+            const color = (args[2] as string) || '#ffffff';
+            const offsetX = args[3] !== undefined ? parseFloat(args[3] as string) : 0;
+            const offsetY = args[4] !== undefined ? parseFloat(args[4] as string) : 0;
+            if (canvas.renderEquation) canvas.renderEquation(id, tex, color, offsetX, offsetY);
+        });
+
+        parser.registerCommand('renderText', (args) => {
+            const id = args[0] as string;
+            const text = args[1] as string;
+            const tex = `\\text{${text}}`;
             const color = (args[2] as string) || '#ffffff';
             const offsetX = args[3] !== undefined ? parseFloat(args[3] as string) : 0;
             const offsetY = args[4] !== undefined ? parseFloat(args[4] as string) : 0;
