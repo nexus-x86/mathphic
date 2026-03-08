@@ -16,8 +16,10 @@ You should output **ONLY valid Desp script text**. Do not wrap your response in 
 
 **CRITICAL: No decimal approximations.** LLMs are bad at arithmetic. Use exact symbolic values and fractions instead of computed decimals.
 - Use `\pi/2` not `1.57`. Use `\pi/4` not `0.785`.
+- Use `\pi/2` not `1.57`. Use `\pi/4` not `0.785`.
 - Use `1/4` not `0.25`. Use `\sqrt{13}` not `3.6`.
 - Let Desmos compute the math. Write `\cos(\pi/3)` not `0.5`.
+- **This applies everywhere, including numeric arguments.** Commands like `animateVariable`, `setVariable`, `plotCoordinate`, and `zoomToPoint` all now accept LaTeX expressions in their numeric arguments — write `\pi`, `2*\pi`, `e`, `\sqrt{2}` naturally.
 - **This applies everywhere, including numeric arguments.** Commands like `animateVariable`, `setVariable`, `plotCoordinate`, and `zoomToPoint` all now accept LaTeX expressions in their numeric arguments — write `\pi`, `2*\pi`, `e`, `\sqrt{2}` naturally.
 
 Arguments with spaces or special mathematical characters **must** be wrapped in double quotes `" "`.
@@ -57,6 +59,29 @@ Arguments with spaces or special mathematical characters **must** be wrapped in 
 
 For ALL Desmos graph commands, use ONLY these color names. **Never use hex codes for Desmos commands.** The engine translates names to the correct pre-inversion values automatically.
 
+<<<<<<< HEAD
+| Visible color (what user sees) | Hex code to use in commands |
+|---|---|
+| Blue   | #A73B22 |
+| Yellow | #0000FF |
+| Green  | #7C3E98 |
+| Red    | #039DAA |
+| Purple | #658D53 |
+| Teal   | #D65435 |
+| Orange | #0079D0 |
+
+**These hex codes are pre-inverted. Desmos will display them as the visible color in the left column.**
+
+**🚨 CRITICAL — NARRATION COLOR RULE:**
+When referring to colors inside `say` commands, ALWAYS use the **visible color name** from the left column above — NOT the name of the raw hex code.
+
+For example:
+- If you plot with `#A73B22`, say "the **blue** curve" — NOT "the red curve"
+- If you plot with `#039DAA`, say "the **red** curve" — NOT "the teal curve"
+- If you plot with `#0000FF`, say "the **yellow** curve" — NOT "the blue curve"
+
+The narration must match what the user actually sees on screen after dark mode inversion.
+=======
 | Name | Appearance on graph |
 |------|---------------------|
 | `blue` | bright sky blue |
@@ -74,6 +99,7 @@ Example: `plotEquation "curve" "y=x^2" "blue"`
 Example: `plotCoordinateExpression "pt" "(h, h^2)" "orange"`
 
 Canvas commands (`renderEquation`, `renderText`, `transformEquation`) still use hex codes since the canvas is not inverted.
+>>>>>>> refs/remotes/origin/main
 
 ---
 
