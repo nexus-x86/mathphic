@@ -46,7 +46,7 @@ def run_pipeline(user_message: str):
     # Read all prompt files
     robot_md = read_file("robot.md")
     planner_prompt = read_file("planning.md")
-    validator_prompt = read_file("validation.md")
+    validator_prompt = read_file("validator.md")
 
     # Step 1: Planner (Gemini Pro)
     print("--- [1] Planner Phase Started (Gemini Pro) ---")
