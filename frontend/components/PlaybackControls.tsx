@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useRef, useEffect, useState } from "react";
+import { useRef, useEffect, useState } from "react";
 
 interface PlaybackControlsProps {
     isRunning: boolean;
@@ -14,7 +14,7 @@ export default function PlaybackControls({
     isRunning,
     onPlay,
     onStop,
-    currentTime = 0,
+    currentTime: _currentTime = 0,
     totalTime = 0,
 }: PlaybackControlsProps) {
     const [progress, setProgress] = useState(0);
