@@ -1222,14 +1222,15 @@ export default function LandingPage() {
             <Link
               href="/"
               style={{
-                fontSize: "0.85rem", fontWeight: 700, letterSpacing: "3px",
-                color: "#e2e8f0", textTransform: "uppercase", textDecoration: "none",
+                display: "flex", alignItems: "center", gap: "8px",
+                textDecoration: "none",
                 opacity: loaded ? 1 : 0,
                 transform: loaded ? "translateY(0)" : "translateY(-10px)",
-                transition: "all 0.6s ease 0.2s", display: "block",
+                transition: "all 0.6s ease 0.2s",
               }}
             >
-              MATHVIZ
+              <img src="/logo.webp" alt="Mathphic" style={{ height: "22px", width: "auto" }} />
+              <span style={{ fontSize: "0.85rem", fontWeight: 700, letterSpacing: "3px", color: "#e2e8f0", textTransform: "uppercase" }}>MATHPHIC</span>
             </Link>
           </header>
 
@@ -1248,7 +1249,7 @@ export default function LandingPage() {
                 transition: "all 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.3s",
               }}
             >
-              Math Visualizer
+              Mathphic
             </h1>
             <p
               style={{
@@ -1354,7 +1355,7 @@ export default function LandingPage() {
               Everything you need to understand math
             </h2>
             <p style={{ fontSize: "1rem", color: "rgba(255,255,255,0.45)", marginBottom: "40px", maxWidth: "520px", lineHeight: 1.7 }}>
-              MathViz combines an AI script engine with a powerful graphing layer to generate explanations that are visual, accurate, and level-appropriate.
+              Mathphic combines an AI script engine with a powerful graphing layer to generate explanations that are visual, accurate, and level-appropriate.
             </p>
           </FadeUp>
 
@@ -1416,7 +1417,7 @@ export default function LandingPage() {
               Up and running in seconds
             </h2>
             <p style={{ fontSize: "1rem", color: "rgba(255,255,255,0.45)", marginBottom: "15px", maxWidth: "520px", lineHeight: 1.7 }}>
-              No setup. No configuration. Just describe what you want to understand and MathViz handles the rest.
+              No setup. No configuration. Just describe what you want to understand and Mathphic handles the rest.
             </p>
           </FadeUp>
 
@@ -1548,7 +1549,7 @@ export default function LandingPage() {
                     e.currentTarget.style.boxShadow = "0 0 30px rgba(51,165,196,0.3)";
                   }}
                 >
-                  Open MathViz →
+                  Open Mathphic →
                 </button>
               </Link>
             </div>
@@ -1565,7 +1566,7 @@ export default function LandingPage() {
           alignItems: "center",
         }}
       >
-        <span style={{ fontSize: "0.75rem", fontWeight: 700, letterSpacing: "3px", color: "rgba(255,255,255,0.2)", textTransform: "uppercase" }}>MATHVIZ</span>
+        <span style={{ fontSize: "0.75rem", fontWeight: 700, letterSpacing: "3px", color: "rgba(255,255,255,0.2)", textTransform: "uppercase" }}>MATHPHIC</span>
         <div style={{ display: "flex", alignItems: "center", gap: "32px" }}>
           <Link href="/app" style={{
             fontSize: "0.75rem", color: "rgba(255,255,255,0.35)", textDecoration: "none",
