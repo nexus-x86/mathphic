@@ -44,8 +44,9 @@ def run_pipeline(user_message: str):
     start_time = time.time()
 
     # Read all prompt files
-    robot_md = read_file("merged.md")
+    robot_md = read_file("robot.md")
     planner_prompt = read_file("planning.md")
+    validator_prompt = read_file("validation.md")
 
     # Step 1: Planner (Gemini Pro)
     print("--- [1] Planner Phase Started (Gemini Pro) ---")
@@ -59,11 +60,11 @@ def run_pipeline(user_message: str):
     script_v1 = generate_claude_response(interpreter_payload)
     print("--- [2] Interpreter Phase Done ---\n")
 
-    # # Step 3: Validator (Claude Sonnet)
-    # print("--- [3] Validator Phase Started (Claude Sonnet) ---")
-    # validator_payload = f"{validator_prompt}\n\nDESP LANGUAGE REFERENCE:\n{robot_md}\n\nCURRENT SCRIPT TO VALIDATE AND CORRECT:\n{script_v1}"
-    # final_script = generate_claude_response(validator_payload)
-    # print("--- [3] Validator Phase Done ---\n")
+    # Step 3: Validator (Claude Sonnet)
+    print("--- [3] Validator Phase Started (Claude Sonnet) ---")
+    validator_payload = f"{validator_prompt}\n\nDESP LANGUAGE REFERENCE:\n{robot_md}\n\nCURRENT SCRIPT TO VALIDATE AND CORRECT:\n{script_v1}"
+    final_script = generate_claude_response(validator_payload)
+    print("--- [3] Validator Phase Done ---\n")
 
     # print(plan)
     # print("\n\n==================================================")
@@ -77,6 +78,8 @@ def run_pipeline(user_message: str):
     # with open(output_path, "w") as f:
     #     f.write(script_v1)
     # print(f"Script written to {output_path}")
+
+    script_v1 = final_script
 
     end_time = time.time()
     print(f"Total time elapsed: {end_time - start_time:.2f} seconds\n")
