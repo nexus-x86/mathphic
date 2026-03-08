@@ -326,8 +326,7 @@ CORRECT: `animateCoordinate "pt" "(3*t, 2*t)" "t" 0 1` — uses only t
 
 ### Common Animation Recipes
 
-**Rotate a point around the origin (radius r, from angle a1 to a2):**
-`animateCoordinate "rotating" "(r*\cos(t), r*\sin(t))" "t" a1 a2 "#FFFF00" 3000`
+**🚨 DO NOT use animateCoordinate for rotation. See ROTATION ANIMATIONS section below.**
 
 **Move a point along a curve y=f(x):**
 `animateCoordinate "tracer" "(t, f(t))" "t" xmin xmax "#FC6255" 3000`
@@ -364,6 +363,122 @@ Smoothly interpolates the physical shape of one equation into another on the gra
 
 Example:
 `animateEquationMorph "morph" "y=\abs(x)" "y=x^2" "h" "#9A72AC" 3000`
+
+**🚨 CRITICAL LIMITATION — ONLY WORKS FOR y=f(x) EQUATIONS:**
+
+`animateEquationMorph` requires EXACTLY ONE `=` sign in each expression. It CANNOT be used on region/inequality expressions. It will silently fail and nothing will animate.
+
+❌ **BROKEN — region expressions have no `=` sign, morph does nothing:**
+```
+animateEquationMorph "shape" "0 \le x \le 1 \{0 \le y \le 1\}" "0 \le x \le 2 \{0 \le y \le (1-\abs(x-1))\}" "h" "#58C4DD" 3000
+```
+
+✅ **CORRECT — use animateVariable with a parametric region instead:**
+```
+setVariable "h" 0
+plotEquation "shape" "0 \le x \le (1+h) \{0 \le y \le \max(0, 1-h*\abs(x-(1+h)/2))\}"
+animateVariable "h" 0 1 3000
+```
+
+---
+
+# 🚨 ROTATION ANIMATIONS — CRITICAL RULES
+
+**Rotation is the most commonly broken animation. Follow these rules exactly.**
+
+## The Core Problem
+
+`animateVariable`, `animateCoordinate`, and `animateDottedEquation` all parse their numeric arguments (min, max, from, to) using `parseFloat()`. This means:
+
+- `parseFloat("0")` = 0 ✓
+- `parseFloat("1")` = 1 ✓
+- `parseFloat("6.28")` = 6.28 ✓
+- `parseFloat("2*\pi")` = **NaN** ✗ — animation silently does nothing
+- `parseFloat("\pi")` = **NaN** ✗ — animation silently does nothing
+- `parseFloat("\pi/2")` = **NaN** ✗ — animation silently does nothing
+
+**You can NEVER use `\pi` or any symbolic expression as a numeric argument to these commands.**
+
+## The Correct Pattern — Always Use t from 0 to 1
+
+Animate a unit parameter `t` from `0` to `1`, then multiply by `2*\pi` **inside the Desmos expression string**. Desmos evaluates that natively. The parser never sees `\pi`.
+
+**ALWAYS use this pattern for any rotation or angle-based animation:**
+
+```
+setVariable "t" 0
+plotCoordinateExpression "pt" "(\cos(2*\pi*t), \sin(2*\pi*t))" "#A73B22"
+animateVariable "t" 0 1 4000
+```
+
+- `animateVariable "t" 0 1 4000` → parser sees `0` and `1` → works ✓
+- `\cos(2*\pi*t)` inside the expression → Desmos evaluates it natively → works ✓
+
+## Complete Rotation Recipes
+
+**Rotate a point on the unit circle (full 360°):**
+```
+setVariable "t" 0
+plotCoordinateExpression "pt" "(\cos(2*\pi*t), \sin(2*\pi*t))" "#A73B22"
+animateVariable "t" 0 1 4000
+```
+
+**Rotate a point on the unit circle (half rotation, 0° to 180°):**
+```
+setVariable "t" 0
+plotCoordinateExpression "pt" "(\cos(\pi*t), \sin(\pi*t))" "#A73B22"
+animateVariable "t" 0 1 3000
+```
+
+**Rotate any vector (x0, y0) — traces a circle of radius sqrt(x0²+y0²):**
+```
+setVariable "t" 0
+plotCoordinateExpression "vrot" "(x0*\cos(2*\pi*t)-y0*\sin(2*\pi*t), x0*\sin(2*\pi*t)+y0*\cos(2*\pi*t))" "#A73B22"
+animateVariable "t" 0 1 4000
+```
+
+**Draw a rotating vector as a line from the origin:**
+Use an extra free variable `s` (do NOT define s anywhere — leave it undefined so Desmos treats it as a parametric sweep):
+```
+setVariable "t" 0
+plotEquation "vec" "(\cos(2*\pi*t)*s, \sin(2*\pi*t)*s) \{0 \le s \le 1\}" "#A73B22"
+plotCoordinateExpression "tip" "(\cos(2*\pi*t), \sin(2*\pi*t))" "#A73B22"
+animateVariable "t" 0 1 4000
+```
+
+**Two basis vectors rotating together (rotation matrix columns):**
+```
+setVariable "t" 0
+plotEquation "vec1" "(\cos(2*\pi*t)*s, \sin(2*\pi*t)*s) \{0 \le s \le 1\}" "#A73B22"
+plotEquation "vec2" "(-\sin(2*\pi*t)*s, \cos(2*\pi*t)*s) \{0 \le s \le 1\}" "#039DAA"
+plotCoordinateExpression "e1" "(\cos(2*\pi*t), \sin(2*\pi*t))" "#A73B22"
+plotCoordinateExpression "e2" "(-\sin(2*\pi*t), \cos(2*\pi*t))" "#039DAA"
+animateVariable "t" 0 1 5000
+```
+
+## What NEVER to Do
+
+❌ **BROKEN — `\pi` in animateVariable endpoint:**
+```
+animateVariable "theta" 0 2*\pi 4000
+```
+
+❌ **BROKEN — `\pi` in animateCoordinate bounds:**
+```
+animateCoordinate "pt" "(\cos(t), \sin(t))" "t" 0 2*\pi "#FFFF00" 3000
+```
+
+❌ **BROKEN — decimal approximation of π (imprecise, forbidden by style rules):**
+```
+animateVariable "theta" 0 6.28318 4000
+```
+
+✅ **CORRECT — always t from 0 to 1, π lives inside the expression:**
+```
+setVariable "t" 0
+plotCoordinateExpression "pt" "(\cos(2*\pi*t), \sin(2*\pi*t))" "#FFFF00"
+animateVariable "t" 0 1 4000
+```
 
 ---
 
