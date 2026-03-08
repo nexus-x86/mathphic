@@ -74,46 +74,55 @@ export default function Sidebar({ settings, onSettingsChange, scriptText, isRunn
                 </Link>
 
                 {/* State-aware Run/Stop/Pause/Resume buttons */}
-                {scriptText && !isRunning ? (
+                {!isRunning ? (
                     <button
-                        onClick={onPlay}
+                        onClick={scriptText ? onPlay : undefined}
+                        disabled={!scriptText}
                         style={{
                             display: "flex",
                             alignItems: "center",
                             gap: "6px",
                             padding: "6px 14px",
                             borderRadius: "8px",
-                            border: "1px solid rgba(51, 165, 196, 0.5)",
-                            background: "linear-gradient(135deg, rgba(51, 165, 196, 0.18), rgba(14, 165, 233, 0.1))",
-                            color: "#33a5c4",
-                            cursor: "pointer",
+                            border: scriptText
+                                ? "1px solid rgba(51, 165, 196, 0.5)"
+                                : "1px solid rgba(255,255,255,0.08)",
+                            background: scriptText
+                                ? "linear-gradient(135deg, rgba(51, 165, 196, 0.18), rgba(14, 165, 233, 0.1))"
+                                : "rgba(255,255,255,0.04)",
+                            color: scriptText ? "#33a5c4" : "rgba(255,255,255,0.2)",
+                            cursor: scriptText ? "pointer" : "default",
                             fontFamily: "inherit",
                             fontSize: "0.75rem",
                             fontWeight: 700,
                             letterSpacing: "2px",
                             textTransform: "uppercase",
-                            animation: "readyGlow 2.4s ease-in-out infinite",
+                            animation: scriptText ? "readyGlow 2.4s ease-in-out infinite" : "none",
                             position: "relative",
                             overflow: "hidden",
                             transition: "all 0.2s ease",
                         }}
                         onMouseEnter={(e) => {
+                            if (!scriptText) return;
                             e.currentTarget.style.background = "linear-gradient(135deg, rgba(51, 165, 196, 0.32), rgba(14, 165, 233, 0.22))";
                             e.currentTarget.style.transform = "translateY(-1px)";
                         }}
                         onMouseLeave={(e) => {
+                            if (!scriptText) return;
                             e.currentTarget.style.background = "linear-gradient(135deg, rgba(51, 165, 196, 0.18), rgba(14, 165, 233, 0.1))";
                             e.currentTarget.style.transform = "translateY(0)";
                         }}
                     >
-                        {/* Shimmer sweep */}
-                        <div style={{
-                            position: "absolute",
-                            top: 0, left: "-100%", width: "60%", height: "100%",
-                            background: "linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent)",
-                            animation: "shimmer 2.4s ease-in-out infinite",
-                            pointerEvents: "none",
-                        }} />
+                        {/* Shimmer sweep — only when active */}
+                        {scriptText && (
+                            <div style={{
+                                position: "absolute",
+                                top: 0, left: "-100%", width: "60%", height: "100%",
+                                background: "linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent)",
+                                animation: "shimmer 2.4s ease-in-out infinite",
+                                pointerEvents: "none",
+                            }} />
+                        )}
                         <svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor">
                             <polygon points="5 3 19 12 5 21 5 3" />
                         </svg>
