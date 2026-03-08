@@ -1,4 +1,5 @@
 import { DesmosController } from "./DesmosController";
+import { playTTS, stopCurrentAudio } from "./AudioPlayer";
 
 // A function type that takes an array of string arguments
 export type CommandCallback = (args: string[]) => void;
@@ -7,7 +8,6 @@ export class ScriptParser {
     // The dictionary mapping command names to functions
     private commands: Map<string, CommandCallback> = new Map();
     public isStopped = false;
-    public activeAudio: HTMLAudioElement | null = null;
 
     /**
      * Registers a new command in the parser's dictionary.
@@ -30,12 +30,7 @@ export class ScriptParser {
      */
     public stop() {
         this.isStopped = true;
-        if (this.activeAudio) {
-            this.activeAudio.pause();
-            this.activeAudio.removeAttribute('src');
-            this.activeAudio.load();
-            this.activeAudio = null;
-        }
+        stopCurrentAudio();
     }
 
     /**
@@ -154,20 +149,7 @@ export class ScriptParser {
                 console.log("Narrator says:", text);
                 try {
                     const audioUrl = `/api/tts?text=${encodeURIComponent(text)}`;
-                    const audio = new Audio(audioUrl);
-                    parser.activeAudio = audio;
-                    await new Promise<void>((resolve) => {
-                        audio.onended = () => resolve();
-                        audio.onerror = (e) => {
-                            console.error("Audio playback error", e);
-                            resolve();
-                        };
-                        audio.play().catch(e => {
-                            console.error("Audio play blocked/failed", e);
-                            resolve();
-                        });
-                    });
-                    if (parser.activeAudio === audio) parser.activeAudio = null;
+                    await playTTS(audioUrl);
                 } catch (e) {
                     console.error("Say command error:", e);
                 }
@@ -456,20 +438,7 @@ export class ScriptParser {
                 console.log("Narrator says:", text);
                 try {
                     const audioUrl = `/api/tts?text=${encodeURIComponent(text)}`;
-                    const audio = new Audio(audioUrl);
-                    parser.activeAudio = audio;
-                    await new Promise<void>((resolve) => {
-                        audio.onended = () => resolve();
-                        audio.onerror = (e) => {
-                            console.error("Audio playback error", e);
-                            resolve();
-                        };
-                        audio.play().catch(e => {
-                            console.error("Audio play blocked/failed", e);
-                            resolve();
-                        });
-                    });
-                    if (parser.activeAudio === audio) parser.activeAudio = null;
+                    await playTTS(audioUrl);
                 } catch (e) {
                     console.error("Say command error:", e);
                 }
