@@ -4,6 +4,23 @@ import { playTTS, stopCurrentAudio, pauseableSleep, isAudioPaused } from "./Audi
 // A function type that takes an array of string arguments
 export type CommandCallback = (args: string[]) => void;
 
+// Parses a numeric argument that may contain LaTeX math constants.
+// Substitutes \pi, \e, \sqrt{} etc. into JS-evaluatable form before parsing.
+function parseNumericArg(arg: string | undefined): number {
+    if (!arg) return NaN;
+    const expr = arg
+        .replace(/\\pi/g, `(${Math.PI})`)
+        .replace(/\\e\b/g, `(${Math.E})`)
+        .replace(/\\sqrt\{([^}]+)\}/g, (_, inner) => `Math.sqrt(${inner})`)
+        .replace(/\\frac\{([^}]+)\}\{([^}]+)\}/g, (_, n, d) => `((${n})/(${d}))`);
+    try {
+        const result = Function(`"use strict"; return (${expr})`)();
+        return typeof result === 'number' ? result : NaN;
+    } catch {
+        return NaN;
+    }
+}
+
 export class ScriptParser {
     // The dictionary mapping command names to functions
     private commands: Map<string, CommandCallback> = new Map();
@@ -352,23 +369,23 @@ export class ScriptParser {
             }
         });
 
-        parser.registerCommand('plotCoordinate', (args) => {
+        parser.registerCommand('plotCoordinate', async (args) => {
             if (args.length >= 3) {
                 const id = args[0];
-                const x = parseFloat(args[1]);
-                const y = parseFloat(args[2]);
+                const x = await desmos.evalLatex(args[1]);
+                const y = await desmos.evalLatex(args[2]);
                 const color = args.length >= 4 ? args[3] : undefined;
                 desmos.plotCoordinate(id, x, y, color);
             }
         });
 
-        parser.registerCommand('animateCoordinate', (args) => {
+        parser.registerCommand('animateCoordinate', async (args) => {
             if (args.length >= 6) {
                 const id = args[0];
                 const expr = args[1];
                 const sliderName = args[2];
-                const endVal = parseFloat(args[3]);
-                const step = parseFloat(args[4]);
+                const endVal = await desmos.evalLatex(args[3]);
+                const step = await desmos.evalLatex(args[4]);
                 const color = args[5];
                 const dur = args.length >= 7 ? parseFloat(args[6]) : undefined;
                 desmos.animateCoordinate(id, expr, sliderName, endVal, step, color, dur);
@@ -387,22 +404,22 @@ export class ScriptParser {
             }
         });
 
-        parser.registerCommand('zoomToPoint', (args) => {
+        parser.registerCommand('zoomToPoint', async (args) => {
             if (args.length >= 2) {
-                const x = parseFloat(args[0]);
-                const y = parseFloat(args[1]);
+                const x = await desmos.evalLatex(args[0]);
+                const y = await desmos.evalLatex(args[1]);
                 const w = args.length >= 3 ? parseFloat(args[2]) : undefined;
                 desmos.zoomToPoint(x, y, w);
             }
         });
 
-        parser.registerCommand('animateDottedEquation', (args) => {
+        parser.registerCommand('animateDottedEquation', async (args) => {
             if (args.length >= 6) {
                 const id = args[0];
                 const expr = args[1];
                 const sliderName = args[2];
-                const endVal = parseFloat(args[3]);
-                const step = parseFloat(args[4]);
+                const endVal = await desmos.evalLatex(args[3]);
+                const step = await desmos.evalLatex(args[4]);
                 const color = args[5];
                 const dur = args.length >= 7 ? parseFloat(args[6]) : undefined;
                 desmos.animateDottedEquation(id, expr, sliderName, endVal, step, color, dur);
@@ -490,10 +507,10 @@ export class ScriptParser {
         });
 
         // VARIABLE Commands
-        parser.registerCommand('setVariable', (args) => {
+        parser.registerCommand('setVariable', async (args) => {
             if (args.length >= 2) {
                 const name = args[0];
-                const value = parseFloat(args[1]);
+                const value = await desmos.evalLatex(args[1]);
                 if (!isNaN(value)) {
                     desmos.setVariable(name, value);
                 }
@@ -514,13 +531,13 @@ export class ScriptParser {
             }
         });
 
-        parser.registerCommand('animateVariable', (args) => {
+        parser.registerCommand('animateVariable', async (args) => {
             if (args.length >= 3) {
                 const name = args[0];
-                const fromValue = parseFloat(args[1]);
-                const toValue = parseFloat(args[2]);
+                const fromValue = await desmos.evalLatex(args[1]);
+                const toValue = await desmos.evalLatex(args[2]);
                 const duration = args.length >= 4 ? parseFloat(args[3]) : 2000;
-                if (!isNaN(fromValue) && !isNaN(toValue) && !isNaN(duration)) {
+                if (!isNaN(fromValue) && !isNaN(toValue)) {
                     desmos.animateVariable(name, fromValue, toValue, duration);
                 }
             }
