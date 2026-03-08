@@ -133,12 +133,30 @@ export default function AppPage() {
 
     const [scriptText, setScriptText] = useState("");
     const [isGenerating, setIsGenerating] = useState(false);
+    const [loadProgress, setLoadProgress] = useState(0);
     const [loaded, setLoaded] = useState(false);
     const [subtitle, setSubtitle] = useState("");
 
     useEffect(() => {
         setLoaded(true);
     }, []);
+
+    // Progress bar for the loading overlay — fills over 65 seconds
+    useEffect(() => {
+        if (!isGenerating) {
+            setLoadProgress(0);
+            return;
+        }
+        const TOTAL_MS = 65_000;
+        const start = Date.now();
+        const tick = () => {
+            const elapsed = Date.now() - start;
+            setLoadProgress(Math.min(elapsed / TOTAL_MS, 1));
+        };
+        tick();
+        const id = setInterval(tick, 200);
+        return () => clearInterval(id);
+    }, [isGenerating]);
 
     const [settings, setSettings] = useState({
         conceptLevel: 1,
@@ -483,6 +501,35 @@ export default function AppPage() {
                             >
                                 Generating...
                             </span>
+
+                            {/* 65-second progress bar */}
+                            <div style={{ width: "190px", display: "flex", flexDirection: "column", gap: "6px" }}>
+                                <div style={{
+                                    width: "100%",
+                                    height: "3px",
+                                    background: "rgba(255,255,255,0.07)",
+                                    borderRadius: "99px",
+                                    overflow: "hidden",
+                                }}>
+                                    <div style={{
+                                        height: "100%",
+                                        width: `${loadProgress * 100}%`,
+                                        background: "linear-gradient(90deg, #33a5c4, #0ea5e9)",
+                                        borderRadius: "99px",
+                                        boxShadow: "0 0 8px rgba(51,165,196,0.6)",
+                                        transition: "width 0.2s linear",
+                                    }} />
+                                </div>
+                                <span style={{
+                                    textAlign: "right",
+                                    fontSize: "0.6rem",
+                                    fontFamily: "monospace",
+                                    color: "rgba(255,255,255,0.2)",
+                                    letterSpacing: "1px",
+                                }}>
+                                    {Math.round(loadProgress * 100)}%
+                                </span>
+                            </div>
                         </div>
                     </div>
                 )}
