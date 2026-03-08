@@ -1136,7 +1136,7 @@ export default function LandingPage() {
     {
       icon: "↗",
       title: "Export Ready",
-      description: "Export your visualizations as MP4, WebM, or GIF to share, embed, or include in presentations.",
+      description: "Export and load your visualizations in a protocol language to save and replay.",
     },
   ];
 
@@ -1222,14 +1222,14 @@ export default function LandingPage() {
             <Link
               href="/"
               style={{
-                display: "flex", alignItems: "center", gap: "10px", textDecoration: "none",
+                fontSize: "0.85rem", fontWeight: 700, letterSpacing: "3px",
+                color: "#e2e8f0", textTransform: "uppercase", textDecoration: "none",
                 opacity: loaded ? 1 : 0,
                 transform: loaded ? "translateY(0)" : "translateY(-10px)",
-                transition: "all 0.6s ease 0.2s",
+                transition: "all 0.6s ease 0.2s", display: "block",
               }}
             >
-              <img src="/logo.webp" alt="Mathphic" style={{ height: "28px", width: "auto" }} />
-              <span style={{ fontSize: "0.85rem", fontWeight: 700, letterSpacing: "3px", color: "#e2e8f0", textTransform: "uppercase" }}>MATHPHIC</span>
+              MATHVIZ
             </Link>
           </header>
 
@@ -1239,7 +1239,7 @@ export default function LandingPage() {
               justifyContent: "center", alignItems: "center", paddingBottom: "80px",
             }}
           >
-<h1
+            <h1
               style={{
                 fontSize: "clamp(3rem, 8vw, 6rem)", fontWeight: 900, color: "#ffffff",
                 letterSpacing: "-2px", marginBottom: "16px", textAlign: "center", lineHeight: 1,
@@ -1248,7 +1248,7 @@ export default function LandingPage() {
                 transition: "all 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.3s",
               }}
             >
-              Mathphic
+              Math Visualizer
             </h1>
             <p
               style={{
@@ -1260,8 +1260,7 @@ export default function LandingPage() {
                 transition: "all 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.5s",
               }}
             >
-              Vectors · Calculus · Probability · Linear Algebra
-            </p>
+              Generate Visualizations for any Math Concept in Seconds</p>
             <div
               style={{
                 display: "flex", gap: "16px",
@@ -1351,15 +1350,15 @@ export default function LandingPage() {
             <p style={{ fontSize: "0.7rem", letterSpacing: "4px", color: "#33a5c4", textTransform: "uppercase", marginBottom: "16px", fontFamily: "var(--font-geist-mono), monospace" }}>
               System Capabilities
             </p>
-            <h2 style={{ fontSize: "clamp(2rem, 4vw, 3rem)", fontWeight: 800, color: "#ffffff", letterSpacing: "-1px", marginBottom: "16px", lineHeight: 1.1 }}>
-              Everything you need to understand math
-            </h2>
-            <p style={{ fontSize: "1rem", color: "rgba(255,255,255,0.45)", marginBottom: "40px", maxWidth: "520px", lineHeight: 1.7 }}>
-              Mathphic combines an AI script engine with a powerful graphing layer to generate explanations that are visual, accurate, and level-appropriate.
-            </p>
-          </FadeUp>
+            <h2 style={u{ fontSize: "clamp(2rem, 4vw, 3rem)", fontWeight: 800, color: "#ffffff", letterSpacing: "-1px", marginBottom: "16px", lineHeight: 1.1 }}>
+            Everything you need to understand math
+          </h2>
+          <p style={{ fontSize: "1rem", color: "rgba(255,255,255,0.45)", marginBottom: "40px", maxWidth: "520px", lineHeight: 1.7 }}>
+            MathViz combines an AI script engine with a powerful graphing layer to generate explanations that are visual, accurate, and level-appropriate.
+          </p>
+        </FadeUp>
 
-          <FadeUp delay={150}>
+        <FadeUp delay={150}>
           <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "1px", background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.06)", borderRadius: "12px", overflow: "hidden" }}>
             {capabilities.map((cap) => {
               const isHovered = hoveredCap === cap.title;
@@ -1397,176 +1396,177 @@ export default function LandingPage() {
               );
             })}
           </div>
-          </FadeUp>
-        </div>
-      </section>
+        </FadeUp>
+    </div>
+      </section >
 
-      {/* ── How to Use ── */}
-      <section
-        style={{
-          padding: "72px 80px",
-          background: "#0d0d14",
-          borderTop: "1px solid rgba(255,255,255,0.04)",
+    {/* ── How to Use ── */ }
+    < section
+  style = {{
+    padding: "72px 80px",
+      background: "#0d0d14",
+        borderTop: "1px solid rgba(255,255,255,0.04)",
+        }
+}
+      >
+  <div style={{ maxWidth: "1100px", margin: "0 auto" }}>
+    <FadeUp>
+      <p style={{ fontSize: "0.7rem", letterSpacing: "4px", color: "#33a5c4", textTransform: "uppercase", marginBottom: "12px", fontFamily: "var(--font-geist-mono), monospace" }}>
+        How to Use
+      </p>
+      <h2 style={{ fontSize: "clamp(2rem, 4vw, 3rem)", fontWeight: 800, color: "#ffffff", letterSpacing: "-1px", marginBottom: "12px", lineHeight: 1.1 }}>
+        Up and running in seconds
+      </h2>
+      <p style={{ fontSize: "1rem", color: "rgba(255,255,255,0.45)", marginBottom: "15px", maxWidth: "520px", lineHeight: 1.7 }}>
+        No setup. No configuration. Just describe what you want to understand and MathViz handles the rest.
+      </p>
+    </FadeUp>
+
+    {/* Sequence graphic strip */}
+    <FadeUp delay={100}>
+      <div style={{
+        width: "100%", height: "210px", marginBottom: "20px",
+        background: "#08080e",
+        border: "1px solid rgba(255,255,255,0.07)",
+        borderRadius: "12px", overflow: "hidden",
+        position: "relative",
+      }}>
+        <SequenceCanvas />
+      </div>
+    </FadeUp>
+
+    <FadeUp delay={200}>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "24px" }}>
+        {howToSteps.map((s) => (
+          <StepCard key={s.step} step={s.step} title={s.title} description={s.description} />
+        ))}
+      </div>
+    </FadeUp>
+  </div>
+      </section >
+
+  {/* ── See What's Possible ── */ }
+  < section
+style = {{
+  padding: "72px 80px",
+    background: "linear-gradient(180deg, #0d0d14 0%, #0a0a0f 100%)",
+      borderTop: "1px solid rgba(255,255,255,0.04)",
         }}
       >
-        <div style={{ maxWidth: "1100px", margin: "0 auto" }}>
-          <FadeUp>
-            <p style={{ fontSize: "0.7rem", letterSpacing: "4px", color: "#33a5c4", textTransform: "uppercase", marginBottom: "12px", fontFamily: "var(--font-geist-mono), monospace" }}>
-              How to Use
-            </p>
-            <h2 style={{ fontSize: "clamp(2rem, 4vw, 3rem)", fontWeight: 800, color: "#ffffff", letterSpacing: "-1px", marginBottom: "12px", lineHeight: 1.1 }}>
-              Up and running in seconds
-            </h2>
-            <p style={{ fontSize: "1rem", color: "rgba(255,255,255,0.45)", marginBottom: "15px", maxWidth: "520px", lineHeight: 1.7 }}>
-              No setup. No configuration. Just describe what you want to understand and Mathphic handles the rest.
-            </p>
-          </FadeUp>
+  <div style={{ maxWidth: "1100px", margin: "0 auto" }}>
+    <FadeUp>
+      <p style={{ fontSize: "0.7rem", letterSpacing: "4px", color: "#33a5c4", textTransform: "uppercase", marginBottom: "16px", fontFamily: "var(--font-geist-mono), monospace" }}>
+        Gallery
+      </p>
+      <h2 style={{ fontSize: "clamp(2rem, 4vw, 3rem)", fontWeight: 800, color: "#ffffff", letterSpacing: "-1px", marginBottom: "36px", lineHeight: 1.1 }}>
+        See what&apos;s possible.
+      </h2>
+    </FadeUp>
 
-          {/* Sequence graphic strip */}
-          <FadeUp delay={100}>
-            <div style={{
-              width: "100%", height: "210px", marginBottom: "20px",
+    {/* 2-up top row + full-width bottom */}
+    <FadeUp delay={100}>
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gridTemplateRows: "380px 260px", gap: "16px" }}>
+        {galleryItems.map((item, i) => (
+          <div
+            key={item.label}
+            style={{
+              gridColumn: i === 2 ? "1 / -1" : undefined,
+              position: "relative",
               background: "#08080e",
               border: "1px solid rgba(255,255,255,0.07)",
-              borderRadius: "12px", overflow: "hidden",
-              position: "relative",
-            }}>
-              <SequenceCanvas />
-            </div>
-          </FadeUp>
-
-          <FadeUp delay={200}>
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "24px" }}>
-              {howToSteps.map((s) => (
-                <StepCard key={s.step} step={s.step} title={s.title} description={s.description} />
-              ))}
-            </div>
-          </FadeUp>
-        </div>
-      </section>
-
-      {/* ── See What's Possible ── */}
-      <section
-        style={{
-          padding: "72px 80px",
-          background: "linear-gradient(180deg, #0d0d14 0%, #0a0a0f 100%)",
-          borderTop: "1px solid rgba(255,255,255,0.04)",
-        }}
-      >
-        <div style={{ maxWidth: "1100px", margin: "0 auto" }}>
-          <FadeUp>
-            <p style={{ fontSize: "0.7rem", letterSpacing: "4px", color: "#33a5c4", textTransform: "uppercase", marginBottom: "16px", fontFamily: "var(--font-geist-mono), monospace" }}>
-              Gallery
-            </p>
-            <h2 style={{ fontSize: "clamp(2rem, 4vw, 3rem)", fontWeight: 800, color: "#ffffff", letterSpacing: "-1px", marginBottom: "36px", lineHeight: 1.1 }}>
-              See what&apos;s possible.
-            </h2>
-          </FadeUp>
-
-          {/* 2-up top row + full-width bottom */}
-          <FadeUp delay={100}>
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gridTemplateRows: "380px 260px", gap: "16px" }}>
-            {galleryItems.map((item, i) => (
-              <div
-                key={item.label}
-                style={{
-                  gridColumn: i === 2 ? "1 / -1" : undefined,
-                  position: "relative",
-                  background: "#08080e",
-                  border: "1px solid rgba(255,255,255,0.07)",
-                  borderRadius: "12px",
-                  overflow: "hidden",
-                  transition: "border-color 0.3s ease",
-                }}
-                onMouseEnter={(e) => {
-                  (e.currentTarget as HTMLDivElement).style.borderColor = "rgba(51,165,196,0.3)";
-                }}
-                onMouseLeave={(e) => {
-                  (e.currentTarget as HTMLDivElement).style.borderColor = "rgba(255,255,255,0.07)";
-                }}
-              >
-                {/* Canvas fills box */}
-                <div style={{ position: "absolute", inset: 0 }}>
-                  {item.graphic}
-                </div>
-
-                {/* Overlay label */}
-                <div
-                  style={{
-                    position: "absolute", bottom: 0, left: 0, right: 0,
-                    padding: "20px 24px",
-                    background: "linear-gradient(0deg, rgba(8,8,14,0.9) 0%, transparent 100%)",
-                    display: "flex", justifyContent: "space-between", alignItems: "flex-end",
-                  }}
-                >
-                  <div>
-                    <div style={{ fontSize: "0.65rem", letterSpacing: "2px", color: "#33a5c4", textTransform: "uppercase", fontFamily: "var(--font-geist-mono), monospace", marginBottom: "4px" }}>
-                      {item.tag}
-                    </div>
-                    <div style={{ fontSize: "0.95rem", fontWeight: 600, color: "#e2e8f0" }}>
-                      {item.label}
-                    </div>
-                  </div>
-                  <span style={{ fontSize: "0.7rem", color: "rgba(255,255,255,0.3)", fontFamily: "var(--font-geist-mono), monospace", fontStyle: "italic" }}>
-                    {item.description}
-                  </span>
-                </div>
-              </div>
-            ))}
-          </div>
-          </FadeUp>
-
-          {/* CTA */}
-          <FadeUp delay={150}>
-          <div
-            style={{
-              marginTop: "36px", display: "flex", alignItems: "center", justifyContent: "space-between",
-              gap: "32px", padding: "32px 40px",
-              background: "rgba(51,165,196,0.04)", border: "1px solid rgba(51,165,196,0.12)",
-              borderRadius: "16px",
+              borderRadius: "12px",
+              overflow: "hidden",
+              transition: "border-color 0.3s ease",
+            }}
+            onMouseEnter={(e) => {
+              (e.currentTarget as HTMLDivElement).style.borderColor = "rgba(51,165,196,0.3)";
+            }}
+            onMouseLeave={(e) => {
+              (e.currentTarget as HTMLDivElement).style.borderColor = "rgba(255,255,255,0.07)";
             }}
           >
-            <div>
-              <h3 style={{ fontSize: "1.4rem", fontWeight: 800, color: "#ffffff", letterSpacing: "-0.5px", marginBottom: "6px" }}>
-                Ready to visualize?
-              </h3>
-              <p style={{ fontSize: "1rem", color: "rgba(255,255,255,0.7)", lineHeight: 1.6, margin: 0 }}>
-                Type a prompt. Get <span style={{ color: "#33a5c4", fontWeight: 600 }}>AI-generated math animations</span> in seconds.
-              </p>
+            {/* Canvas fills box */}
+            <div style={{ position: "absolute", inset: 0 }}>
+              {item.graphic}
             </div>
-            <Link href="/app" style={{ textDecoration: "none", flexShrink: 0 }}>
-              <button
-                style={{
-                  padding: "14px 32px", fontSize: "1rem", fontWeight: 700, border: "none",
-                  borderRadius: "8px", background: "linear-gradient(135deg, #33a5c4, #0ea5e9)",
-                  color: "#000", cursor: "pointer", transition: "all 0.3s ease",
-                  letterSpacing: "0.5px", boxShadow: "0 0 30px rgba(51,165,196,0.3)", whiteSpace: "nowrap",
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.transform = "translateY(-2px)";
-                  e.currentTarget.style.boxShadow = "0 4px 40px rgba(51,165,196,0.5)";
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.transform = "translateY(0)";
-                  e.currentTarget.style.boxShadow = "0 0 30px rgba(51,165,196,0.3)";
-                }}
-              >
-                Open Mathphic →
-              </button>
-            </Link>
-          </div>
-          </FadeUp>
-        </div>
-      </section>
 
-      {/* Footer */}
-      <footer
+            {/* Overlay label */}
+            <div
+              style={{
+                position: "absolute", bottom: 0, left: 0, right: 0,
+                padding: "20px 24px",
+                background: "linear-gradient(0deg, rgba(8,8,14,0.9) 0%, transparent 100%)",
+                display: "flex", justifyContent: "space-between", alignItems: "flex-end",
+              }}
+            >
+              <div>
+                <div style={{ fontSize: "0.65rem", letterSpacing: "2px", color: "#33a5c4", textTransform: "uppercase", fontFamily: "var(--font-geist-mono), monospace", marginBottom: "4px" }}>
+                  {item.tag}
+                </div>
+                <div style={{ fontSize: "0.95rem", fontWeight: 600, color: "#e2e8f0" }}>
+                  {item.label}
+                </div>
+              </div>
+              <span style={{ fontSize: "0.7rem", color: "rgba(255,255,255,0.3)", fontFamily: "var(--font-geist-mono), monospace", fontStyle: "italic" }}>
+                {item.description}
+              </span>
+            </div>
+          </div>
+        ))}
+      </div>
+    </FadeUp>
+
+    {/* CTA */}
+    <FadeUp delay={150}>
+      <div
         style={{
-          padding: "24px 80px", borderTop: "1px solid rgba(255,255,255,0.04)",
-          display: "flex", justifyContent: "space-between", alignItems: "center",
+          marginTop: "36px", display: "flex", alignItems: "center", justifyContent: "space-between",
+          gap: "32px", padding: "32px 40px",
+          background: "rgba(51,165,196,0.04)", border: "1px solid rgba(51,165,196,0.12)",
+          borderRadius: "16px",
         }}
       >
-        <span style={{ fontSize: "0.75rem", fontWeight: 700, letterSpacing: "3px", color: "rgba(255,255,255,0.2)", textTransform: "uppercase" }}>MATHPHIC</span>
+        <div>
+          <h3 style={{ fontSize: "1.4rem", fontWeight: 800, color: "#ffffff", letterSpacing: "-0.5px", marginBottom: "6px" }}>
+            Ready to visualize?
+          </h3>
+          <p style={{ fontSize: "1rem", color: "rgba(255,255,255,0.7)", lineHeight: 1.6, margin: 0 }}>
+            Type a prompt. Get <span style={{ color: "#33a5c4", fontWeight: 600 }}>AI-generated math animations</span> in seconds.
+          </p>
+        </div>
+        <Link href="/app" style={{ textDecoration: "none", flexShrink: 0 }}>
+          <button
+            style={{
+              padding: "14px 32px", fontSize: "1rem", fontWeight: 700, border: "none",
+              borderRadius: "8px", background: "linear-gradient(135deg, #33a5c4, #0ea5e9)",
+              color: "#000", cursor: "pointer", transition: "all 0.3s ease",
+              letterSpacing: "0.5px", boxShadow: "0 0 30px rgba(51,165,196,0.3)", whiteSpace: "nowrap",
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.transform = "translateY(-2px)";
+              e.currentTarget.style.boxShadow = "0 4px 40px rgba(51,165,196,0.5)";
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.transform = "translateY(0)";
+              e.currentTarget.style.boxShadow = "0 0 30px rgba(51,165,196,0.3)";
+            }}
+          >
+            Open MathViz →
+          </button>
+        </Link>
+      </div>
+    </FadeUp>
+  </div>
+      </section >
+
+  {/* Footer */ }
+  < footer
+style = {{
+  padding: "24px 80px", borderTop: "1px solid rgba(255,255,255,0.04)",
+    display: "flex", justifyContent: "space-between", alignItems: "center",
+        }}
+      >
+        <span style={{ fontSize: "0.75rem", fontWeight: 700, letterSpacing: "3px", color: "rgba(255,255,255,0.2)", textTransform: "uppercase" }}>MATHVIZ</span>
         <div style={{ display: "flex", alignItems: "center", gap: "32px" }}>
           <Link href="/app" style={{
             fontSize: "0.75rem", color: "rgba(255,255,255,0.35)", textDecoration: "none",
@@ -1580,14 +1580,14 @@ export default function LandingPage() {
           </Link>
           <span style={{ fontSize: "0.75rem", color: "rgba(255,255,255,0.12)", fontFamily: "var(--font-geist-mono), monospace" }}>Math made visible.</span>
         </div>
-      </footer>
+      </footer >
 
-      <style>{`
+  <style>{`
         @keyframes float {
           0%, 100% { transform: translateX(-50%) translateY(0); }
           50% { transform: translateX(-50%) translateY(8px); }
         }
       `}</style>
-    </div>
+    </div >
   );
 }
