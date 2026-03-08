@@ -1,3 +1,21 @@
+// Named color palette for use in scripts.
+// Values are pre-inversion hex codes — they display as the named color
+// when Desmos renders with invertedColors: true.
+// To add/change a color: pick the display color you want, then set the
+// value to its RGB inversion: R' = 255-R, G' = 255-G, B' = 255-B.
+export const GRAPH_COLORS: Record<string, string> = {
+    blue:   '#C55900',  // displays as #3AA6FF
+    red:    '#00A4A4',  // displays as #FF5B5B
+    green:  '#C23EB2',  // displays as #3DC14D
+    orange: '#005FBF',  // displays as #FFA040
+    purple: '#3F7B03',  // displays as #C084FC
+    yellow: '#0440DB',  // displays as #FBBF24
+    teal:   '#D22B40',  // displays as #2DD4BF
+    pink:   '#0B8D4A',  // displays as #F472B6
+    white:  '#1D1D1D',  // displays as #E2E2E2
+    gray:   '#635C50',  // displays as #9CA3AF
+};
+
 export class DesmosController {
     private calculator: any = null;
     private animationRef: number | null = null;
@@ -40,6 +58,11 @@ export class DesmosController {
         } else {
             console.warn("Desmos API is not loaded.");
         }
+    }
+
+    private resolveColor(color?: string): string | undefined {
+        if (!color) return undefined;
+        return GRAPH_COLORS[color.toLowerCase()] ?? color;
     }
 
     /**
@@ -136,7 +159,7 @@ export class DesmosController {
         this.calculator.setExpression({
             id: id,
             latex: eq,
-            color: color || '#c47d09'
+            color: this.resolveColor(color) || GRAPH_COLORS.blue
         });
         this.trackedIds.add(id);
     }
@@ -154,7 +177,7 @@ export class DesmosController {
             id: id,
             latex: `(${x}, ${y})`,
             showLabel: true,
-            color: color || '#10bbbb'
+            color: this.resolveColor(color) || GRAPH_COLORS.red
         });
         this.trackedIds.add(id);
     }
@@ -176,7 +199,7 @@ export class DesmosController {
             id: id,
             latex: coordinateExpr,
             showLabel: true,
-            color: color || '#10bbbb'
+            color: this.resolveColor(color) || GRAPH_COLORS.red
         });
         this.trackedIds.add(id);
 
@@ -222,7 +245,7 @@ export class DesmosController {
         this.calculator.setExpression({
             id: id,
             latex: equationExpr,
-            color: color || '#c47d09',
+            color: this.resolveColor(color) || GRAPH_COLORS.blue,
             lineStyle: win.Desmos.Styles.DOTTED
         });
         this.trackedIds.add(id);
@@ -287,7 +310,7 @@ export class DesmosController {
         this.calculator.setExpression({
             id: id,
             latex: combinedLatex,
-            color: color || '#10bbbb'
+            color: this.resolveColor(color) || GRAPH_COLORS.red
         });
         this.trackedIds.add(id);
 
@@ -563,7 +586,7 @@ export class DesmosController {
             id: id,
             latex: coordExpr,
             showLabel: true,
-            color: color || '#10bbbb'
+            color: this.resolveColor(color) || GRAPH_COLORS.red
         });
         this.trackedIds.add(id);
     }
@@ -592,7 +615,7 @@ export class DesmosController {
             this.calculator.setExpression({
                 id: objId,
                 latex: latex,
-                color: color || '#83C167'
+                color: this.resolveColor(color) || GRAPH_COLORS.green
             });
             this.trackedIds.add(objId);
         }
@@ -655,7 +678,7 @@ export class DesmosController {
                 this.calculator.setExpression({
                     id: objId,
                     latex: latex,
-                    color: group.color || '#83C167'
+                    color: this.resolveColor(group.color) || GRAPH_COLORS.green
                 });
                 this.trackedIds.add(objId);
             }
@@ -696,6 +719,25 @@ export class DesmosController {
     public clearObjectGroups() {
         this.objectGroups.forEach((_, groupId) => {
             this.freeObjectGroup(groupId);
+        });
+    }
+
+    /**
+     * Evaluates a LaTeX string to a numeric value using Desmos's HelperExpression.
+     * Falls back to parseFloat for plain numbers (fast path) or returns NaN if calculator unavailable.
+     * @param latex A LaTeX string like "2*\pi", "\sqrt{2}", or "3.14".
+     */
+    public evalLatex(latex: string): Promise<number> {
+        return new Promise((resolve) => {
+            const simple = parseFloat(latex);
+            if (!isNaN(simple)) { resolve(simple); return; }
+            if (!this.calculator) { resolve(NaN); return; }
+
+            const helper = this.calculator.HelperExpression({ latex });
+            helper.observe('numericValue', () => {
+                resolve(helper.numericValue);
+                helper.unobserve('numericValue');
+            });
         });
     }
 }
