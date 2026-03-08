@@ -6,20 +6,17 @@ import Link from "next/link";
 interface SidebarProps {
     settings: {
         narration: boolean;
-        showComputations: boolean;
-        maxDuration: number;
-        minDuration: number;
-        font: string;
-        palette: string;
         conceptLevel: number;
-        resolution: string;
-        format: string;
     };
     onSettingsChange: (key: string, value: any) => void;
+    scriptText?: string;
+    isRunning?: boolean;
+    onPlay?: () => void;
+    onStop?: () => void;
 }
 
-export default function Sidebar({ settings, onSettingsChange }: SidebarProps) {
-    const [activeTab, setActiveTab] = useState<"settings" | "history">("settings");
+export default function Sidebar({ settings, onSettingsChange, scriptText, isRunning, onPlay, onStop }: SidebarProps) {
+    const [activeTab, setActiveTab] = useState<"settings" | "script">("settings");
 
     const conceptLabels = ["High School", "Early Undergrad", "Late Undergrad"];
 
@@ -63,7 +60,7 @@ export default function Sidebar({ settings, onSettingsChange }: SidebarProps) {
                     borderBottom: "1px solid rgba(255,255,255,0.06)",
                 }}
             >
-                {(["settings", "history"] as const).map((tab) => (
+                {(["settings", "script"] as const).map((tab) => (
                     <button
                         key={tab}
                         onClick={() => setActiveTab(tab)}
@@ -107,48 +104,6 @@ export default function Sidebar({ settings, onSettingsChange }: SidebarProps) {
                             value={settings.narration}
                             onChange={(v) => onSettingsChange("narration", v)}
                         />
-
-                        {/* Toggle: Show Computations */}
-                        <ToggleRow
-                            label="Show Computations"
-                            value={settings.showComputations}
-                            onChange={(v) => onSettingsChange("showComputations", v)}
-                        />
-
-                        {/* Duration fields */}
-                        <FieldRow label="Max Duration">
-                            <NumberInput
-                                value={settings.maxDuration}
-                                onChange={(v) => onSettingsChange("maxDuration", v)}
-                                suffix="s"
-                            />
-                        </FieldRow>
-
-                        <FieldRow label="Min Duration">
-                            <NumberInput
-                                value={settings.minDuration}
-                                onChange={(v) => onSettingsChange("minDuration", v)}
-                                suffix="s"
-                            />
-                        </FieldRow>
-
-                        {/* Font */}
-                        <FieldRow label="Font">
-                            <SelectInput
-                                value={settings.font}
-                                options={["Times New Roman", "Inter", "Fira Code", "Georgia"]}
-                                onChange={(v) => onSettingsChange("font", v)}
-                            />
-                        </FieldRow>
-
-                        {/* Palette */}
-                        <FieldRow label="Palette">
-                            <SelectInput
-                                value={settings.palette}
-                                options={["Default", "Neon", "Pastel", "Monochrome"]}
-                                onChange={(v) => onSettingsChange("palette", v)}
-                            />
-                        </FieldRow>
 
                         {/* Concept Level */}
                         <div>
@@ -198,74 +153,91 @@ export default function Sidebar({ settings, onSettingsChange }: SidebarProps) {
                             </div>
                         </div>
 
-                        {/* Resolution & Format */}
-                        <FieldRow label="Resolution">
-                            <TextInput
-                                value={settings.resolution}
-                                onChange={(v) => onSettingsChange("resolution", v)}
-                            />
-                        </FieldRow>
-
-                        <FieldRow label="Format">
-                            <SelectInput
-                                value={settings.format}
-                                options={["mp4", "webm", "gif"]}
-                                onChange={(v) => onSettingsChange("format", v)}
-                            />
-                        </FieldRow>
-
                         {/* Action buttons */}
                         <div style={{ display: "flex", flexDirection: "column", gap: "8px", marginTop: "4px" }}>
+                            <ActionButton label="Load" variant="load" />
                             <ActionButton label="Export" variant="primary" />
-                            <ActionButton label="Show" variant="secondary" />
-                            <ActionButton label="Save" variant="secondary" />
                         </div>
                     </>
-                ) : (
-                    <div
-                        style={{
-                            color: "rgba(255,255,255,0.3)",
-                            fontSize: "0.8rem",
-                            textAlign: "center",
-                            paddingTop: "40px",
-                            fontStyle: "italic",
-                        }}
-                    >
-                        No history yet
-                    </div>
-                )}
+                ) : activeTab === "script" ? (
+                    scriptText ? (
+                        <pre
+                            style={{
+                                margin: 0,
+                                padding: "12px",
+                                background: "rgba(255,255,255,0.03)",
+                                border: "1px solid rgba(255,255,255,0.07)",
+                                borderRadius: "8px",
+                                color: "rgba(255,255,255,0.7)",
+                                fontSize: "0.72rem",
+                                fontFamily: "'Geist Mono', 'Fira Code', monospace",
+                                lineHeight: 1.65,
+                                whiteSpace: "pre-wrap",
+                                wordBreak: "break-word",
+                                overflowX: "hidden",
+                            }}
+                        >
+                            {scriptText}
+                        </pre>
+                    ) : (
+                        <div
+                            style={{
+                                color: "rgba(255,255,255,0.3)",
+                                fontSize: "0.8rem",
+                                textAlign: "center",
+                                paddingTop: "40px",
+                                fontStyle: "italic",
+                            }}
+                        >
+                            No script yet
+                        </div>
+                    )
+                ) : null}
             </div>
 
-            {/* Footer */}
-            <button
+            {/* Play/Stop button — bottom right */}
+            <div
                 style={{
                     display: "flex",
-                    alignItems: "center",
-                    gap: "10px",
-                    padding: "16px 24px",
-                    fontSize: "0.8rem",
-                    color: "rgba(255,255,255,0.5)",
-                    background: "none",
-                    border: "none",
+                    justifyContent: "flex-end",
+                    padding: "12px 16px",
                     borderTop: "1px solid rgba(255,255,255,0.06)",
-                    cursor: "pointer",
-                    transition: "all 0.2s ease",
-                    fontFamily: "inherit",
-                }}
-                onMouseEnter={(e) => {
-                    e.currentTarget.style.color = "#33a5c4";
-                    e.currentTarget.style.background = "rgba(51, 165, 196, 0.05)";
-                }}
-                onMouseLeave={(e) => {
-                    e.currentTarget.style.color = "rgba(255,255,255,0.5)";
-                    e.currentTarget.style.background = "none";
                 }}
             >
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z" />
-                </svg>
-                Load Collections
-            </button>
+                <button
+                    onClick={isRunning ? onStop : onPlay}
+                    style={{
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        width: "36px",
+                        height: "36px",
+                        borderRadius: "8px",
+                        border: "none",
+                        background: isRunning ? "rgba(239, 68, 68, 0.15)" : "rgba(51, 165, 196, 0.15)",
+                        color: isRunning ? "#ef4444" : "#33a5c4",
+                        cursor: "pointer",
+                        transition: "all 0.2s ease",
+                    }}
+                    onMouseEnter={(e) => {
+                        e.currentTarget.style.background = isRunning ? "rgba(239, 68, 68, 0.28)" : "rgba(51, 165, 196, 0.28)";
+                    }}
+                    onMouseLeave={(e) => {
+                        e.currentTarget.style.background = isRunning ? "rgba(239, 68, 68, 0.15)" : "rgba(51, 165, 196, 0.15)";
+                    }}
+                >
+                    {isRunning ? (
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+                            <rect x="6" y="4" width="4" height="16" rx="1" />
+                            <rect x="14" y="4" width="4" height="16" rx="1" />
+                        </svg>
+                    ) : (
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+                            <polygon points="5 3 19 12 5 21 5 3" />
+                        </svg>
+                    )}
+                </button>
+            </div>
         </div>
     );
 }
@@ -316,61 +288,7 @@ function FieldRow({ label, children }: { label: string; children: React.ReactNod
     );
 }
 
-function NumberInput({ value, onChange, suffix }: { value: number; onChange: (v: number) => void; suffix?: string }) {
-    return (
-        <div
-            style={{
-                display: "flex",
-                alignItems: "center",
-                gap: "4px",
-                background: "rgba(255,255,255,0.06)",
-                borderRadius: "6px",
-                padding: "4px 10px",
-                border: "1px solid rgba(255,255,255,0.08)",
-            }}
-        >
-            <input
-                type="number"
-                value={value}
-                onChange={(e) => onChange(parseFloat(e.target.value) || 0)}
-                style={{
-                    width: "40px",
-                    background: "none",
-                    border: "none",
-                    color: "#fff",
-                    fontSize: "0.8rem",
-                    outline: "none",
-                    fontFamily: "monospace",
-                    textAlign: "right",
-                }}
-            />
-            {suffix && (
-                <span style={{ fontSize: "0.7rem", color: "rgba(255,255,255,0.35)" }}>{suffix}</span>
-            )}
-        </div>
-    );
-}
 
-function TextInput({ value, onChange }: { value: string; onChange: (v: string) => void }) {
-    return (
-        <input
-            type="text"
-            value={value}
-            onChange={(e) => onChange(e.target.value)}
-            style={{
-                width: "110px",
-                background: "rgba(255,255,255,0.06)",
-                borderRadius: "6px",
-                padding: "5px 10px",
-                border: "1px solid rgba(255,255,255,0.08)",
-                color: "#fff",
-                fontSize: "0.8rem",
-                outline: "none",
-                fontFamily: "monospace",
-            }}
-        />
-    );
-}
 
 function SelectInput({ value, options, onChange }: { value: string; options: string[]; onChange: (v: string) => void }) {
     return (
@@ -398,7 +316,31 @@ function SelectInput({ value, options, onChange }: { value: string; options: str
     );
 }
 
-function ActionButton({ label, variant }: { label: string; variant: "primary" | "secondary" }) {
+function ActionButton({ label, variant }: { label: string; variant: "primary" | "secondary" | "load" }) {
+    const styles = {
+        primary: {
+            border: "none",
+            background: "linear-gradient(135deg, #33a5c4, #0ea5e9)",
+            color: "#000",
+            hoverBg: "linear-gradient(135deg, #33a5c4, #0ea5e9)",
+            leaveBg: "linear-gradient(135deg, #33a5c4, #0ea5e9)",
+        },
+        secondary: {
+            border: "1px solid rgba(255,255,255,0.1)",
+            background: "rgba(255,255,255,0.04)",
+            color: "rgba(255,255,255,0.6)",
+            hoverBg: "rgba(255,255,255,0.08)",
+            leaveBg: "rgba(255,255,255,0.04)",
+        },
+        load: {
+            border: "1px solid rgba(255,255,255,0.2)",
+            background: "rgba(255,255,255,0.1)",
+            color: "rgba(255,255,255,0.85)",
+            hoverBg: "rgba(255,255,255,0.16)",
+            leaveBg: "rgba(255,255,255,0.1)",
+        },
+    }[variant];
+
     const isPrimary = variant === "primary";
     return (
         <button
@@ -407,26 +349,27 @@ function ActionButton({ label, variant }: { label: string; variant: "primary" | 
                 fontSize: "0.8rem",
                 fontWeight: 600,
                 borderRadius: "8px",
-                border: isPrimary ? "none" : "1px solid rgba(255,255,255,0.1)",
-                background: isPrimary ? "#33a5c4" : "rgba(255,255,255,0.04)",
-                color: isPrimary ? "#000" : "rgba(255,255,255,0.6)",
+                border: styles.border,
+                background: styles.background,
+                color: styles.color,
                 cursor: "pointer",
-                transition: "all 0.2s ease",
+                transition: "all 0.3s ease",
                 fontFamily: "inherit",
                 letterSpacing: "0.3px",
+                boxShadow: isPrimary ? "0 0 30px rgba(51, 165, 196, 0.3)" : "none",
             }}
             onMouseEnter={(e) => {
+                e.currentTarget.style.background = styles.hoverBg;
                 if (isPrimary) {
-                    e.currentTarget.style.background = "#0d9488";
-                } else {
-                    e.currentTarget.style.background = "rgba(255,255,255,0.08)";
+                    e.currentTarget.style.transform = "translateY(-2px)";
+                    e.currentTarget.style.boxShadow = "0 4px 40px rgba(51, 165, 196, 0.5)";
                 }
             }}
             onMouseLeave={(e) => {
+                e.currentTarget.style.background = styles.leaveBg;
                 if (isPrimary) {
-                    e.currentTarget.style.background = "#33a5c4";
-                } else {
-                    e.currentTarget.style.background = "rgba(255,255,255,0.04)";
+                    e.currentTarget.style.transform = "translateY(0)";
+                    e.currentTarget.style.boxShadow = "0 0 30px rgba(51, 165, 196, 0.3)";
                 }
             }}
         >

@@ -417,10 +417,595 @@ function BellCanvas() {
   );
 }
 
+// ── Interactive graphic: Sequential Math Visualizations ──
+function SequenceCanvas() {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+
+    let animId: number;
+    let t = 0;
+
+    const resize = () => {
+      canvas.width = canvas.offsetWidth * (window.devicePixelRatio || 1);
+      canvas.height = canvas.offsetHeight * (window.devicePixelRatio || 1);
+      ctx.scale(window.devicePixelRatio || 1, window.devicePixelRatio || 1);
+    };
+    resize();
+
+    // --- Scene definitions ---
+    const scenes = [
+      {
+        label: "∫  Definite Integral",
+        color: "#33a5c4",
+        duration: 5,
+        draw: (ctx: CanvasRenderingContext2D, w: number, h: number, progress: number) => {
+          const pad = { left: 50, right: 24, top: 30, bottom: 44 };
+          const gw = w - pad.left - pad.right;
+          const gh = h - pad.top - pad.bottom;
+          const toSx = (x: number) => pad.left + x * gw;
+          const toSy = (y: number) => pad.top + gh - y * gh;
+          const f = (x: number) => 0.15 + 0.55 * Math.sin(x * Math.PI * 1.2) + 0.2 * x;
+
+          // Axes
+          ctx.strokeStyle = "rgba(255,255,255,0.18)";
+          ctx.lineWidth = 1;
+          ctx.beginPath();
+          ctx.moveTo(toSx(0), toSy(0));
+          ctx.lineTo(toSx(1), toSy(0));
+          ctx.moveTo(toSx(0), toSy(0));
+          ctx.lineTo(toSx(0), toSy(1));
+          ctx.stroke();
+
+          // Axis labels
+          ctx.fillStyle = "rgba(255,255,255,0.25)";
+          ctx.font = "10px monospace";
+          ctx.fillText("x", toSx(1) - 8, toSy(0) + 16);
+          ctx.fillText("y", toSx(0) - 16, toSy(1) + 12);
+
+          // Animated fill — Riemann rectangles that get thinner over time
+          const a = 0.1, b = 0.85;
+          const fillEnd = a + (b - a) * Math.min(progress * 1.4, 1);
+          const numBars = Math.floor(8 + progress * 30);
+          const barW = (fillEnd - a) / numBars;
+          for (let i = 0; i < numBars; i++) {
+            const x0 = a + i * barW;
+            const fv = f(x0 + barW * 0.5);
+            const grad = ctx.createLinearGradient(0, toSy(fv), 0, toSy(0));
+            grad.addColorStop(0, "rgba(51,165,196,0.45)");
+            grad.addColorStop(1, "rgba(51,165,196,0.08)");
+            ctx.fillStyle = grad;
+            ctx.fillRect(toSx(x0), toSy(fv), toSx(x0 + barW) - toSx(x0) - 1, toSy(0) - toSy(fv));
+          }
+
+          // Curve
+          ctx.beginPath();
+          ctx.strokeStyle = "#e2e8f0";
+          ctx.lineWidth = 2;
+          for (let px = 0; px <= gw; px++) {
+            const x = px / gw;
+            const sx = toSx(x), sy = toSy(f(x));
+            px === 0 ? ctx.moveTo(sx, sy) : ctx.lineTo(sx, sy);
+          }
+          ctx.stroke();
+
+          // Bounds labels
+          if (progress > 0.2) {
+            ctx.fillStyle = "rgba(51,165,196,0.8)";
+            ctx.font = "bold 11px monospace";
+            ctx.fillText("a", toSx(a) - 3, toSy(0) + 16);
+            ctx.fillText("b", toSx(b) - 3, toSy(0) + 16);
+            // Dashed bounds
+            ctx.setLineDash([3, 4]);
+            ctx.strokeStyle = "rgba(51,165,196,0.4)";
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.moveTo(toSx(a), toSy(0));
+            ctx.lineTo(toSx(a), toSy(f(a)));
+            ctx.moveTo(toSx(b), toSy(0));
+            ctx.lineTo(toSx(b), toSy(f(b)));
+            ctx.stroke();
+            ctx.setLineDash([]);
+          }
+
+          // Formula fade-in
+          if (progress > 0.5) {
+            const alpha = Math.min((progress - 0.5) * 3, 0.7);
+            ctx.fillStyle = `rgba(255,255,255,${alpha})`;
+            ctx.font = "13px monospace";
+            ctx.fillText("∫ f(x) dx", w - 120, 28);
+          }
+        },
+      },
+      {
+        label: "→  Vector Space",
+        color: "#ffdd00",
+        duration: 5,
+        draw: (ctx: CanvasRenderingContext2D, w: number, h: number, progress: number) => {
+          const cx = w * 0.45, cy = h * 0.55;
+          const unit = Math.min(w, h) * 0.22;
+
+          // Grid
+          ctx.strokeStyle = "rgba(255,255,255,0.06)";
+          ctx.lineWidth = 0.6;
+          for (let i = -4; i <= 4; i++) {
+            ctx.beginPath();
+            ctx.moveTo(cx + i * unit * 0.5, cy - 4 * unit * 0.5);
+            ctx.lineTo(cx + i * unit * 0.5, cy + 4 * unit * 0.5);
+            ctx.stroke();
+            ctx.beginPath();
+            ctx.moveTo(cx - 4 * unit * 0.5, cy + i * unit * 0.5);
+            ctx.lineTo(cx + 4 * unit * 0.5, cy + i * unit * 0.5);
+            ctx.stroke();
+          }
+
+          // Axes
+          ctx.strokeStyle = "rgba(255,255,255,0.2)";
+          ctx.lineWidth = 1.2;
+          ctx.beginPath();
+          ctx.moveTo(cx - unit * 2, cy);
+          ctx.lineTo(cx + unit * 2, cy);
+          ctx.moveTo(cx, cy - unit * 2);
+          ctx.lineTo(cx, cy + unit * 2);
+          ctx.stroke();
+
+          // Vectors that appear one by one
+          const vectors = [
+            { dx: 1.5, dy: -0.8, color: "#ffdd00", label: "v₁" },
+            { dx: -0.6, dy: -1.4, color: "#ff4d4d", label: "v₂" },
+            { dx: 0.9, dy: 0.6, color: "#33c47a", label: "v₃" },
+            { dx: -1.2, dy: 0.3, color: "#33a5c4", label: "v₄" },
+            { dx: 1.0, dy: -1.6, color: "#c084fc", label: "v₅" },
+          ];
+
+          const numVisible = Math.min(Math.floor(progress * (vectors.length + 1)), vectors.length);
+          const partial = (progress * (vectors.length + 1)) - Math.floor(progress * (vectors.length + 1));
+
+          for (let i = 0; i < numVisible; i++) {
+            const v = vectors[i];
+            const extend = i === numVisible - 1 && numVisible <= vectors.length ? Math.min(partial * 2, 1) : 1;
+            const ex = cx + v.dx * unit * extend;
+            const ey = cy + v.dy * unit * extend;
+
+            // Shaft
+            ctx.beginPath();
+            ctx.strokeStyle = v.color;
+            ctx.lineWidth = 2.2;
+            ctx.moveTo(cx, cy);
+            ctx.lineTo(ex, ey);
+            ctx.stroke();
+
+            // Arrowhead
+            if (extend > 0.5) {
+              const ang = Math.atan2(ey - cy, ex - cx);
+              ctx.beginPath();
+              ctx.fillStyle = v.color;
+              ctx.moveTo(ex, ey);
+              ctx.lineTo(ex - 10 * Math.cos(ang - 0.35), ey - 10 * Math.sin(ang - 0.35));
+              ctx.lineTo(ex - 10 * Math.cos(ang + 0.35), ey - 10 * Math.sin(ang + 0.35));
+              ctx.closePath();
+              ctx.fill();
+            }
+
+            // Label
+            if (extend > 0.8) {
+              ctx.fillStyle = v.color;
+              ctx.font = "bold 11px monospace";
+              ctx.fillText(v.label, ex + 6, ey - 6);
+            }
+          }
+
+          // Span label
+          if (progress > 0.7) {
+            const alpha = Math.min((progress - 0.7) * 4, 0.6);
+            ctx.fillStyle = `rgba(255,255,255,${alpha})`;
+            ctx.font = "12px monospace";
+            ctx.fillText("span{v₁, v₂, ...} = R²", w - 200, 28);
+          }
+        },
+      },
+      {
+        label: "∿  Fourier Transform",
+        color: "#c084fc",
+        duration: 5,
+        draw: (ctx: CanvasRenderingContext2D, w: number, h: number, progress: number) => {
+          const pad = 40;
+          const gw = w - pad * 2;
+          const midY = h * 0.32;
+          const freqY = h * 0.75;
+
+          // --- Time domain (top) ---
+          ctx.fillStyle = "rgba(255,255,255,0.15)";
+          ctx.font = "9px monospace";
+          ctx.fillText("time domain", pad, midY - h * 0.18);
+
+          // Axis
+          ctx.strokeStyle = "rgba(255,255,255,0.12)";
+          ctx.lineWidth = 0.8;
+          ctx.beginPath();
+          ctx.moveTo(pad, midY);
+          ctx.lineTo(pad + gw, midY);
+          ctx.stroke();
+
+          // Composite wave — sum of 3 sinusoids, drawn progressively
+          const drawEnd = progress;
+          ctx.beginPath();
+          ctx.strokeStyle = "#e2e8f0";
+          ctx.lineWidth = 1.8;
+          for (let px = 0; px <= gw * drawEnd; px += 1) {
+            const x = px / gw;
+            const y = midY
+              + Math.sin(x * Math.PI * 4) * 22
+              + Math.sin(x * Math.PI * 10) * 12
+              + Math.sin(x * Math.PI * 18) * 7;
+            px === 0 ? ctx.moveTo(pad + px, y) : ctx.lineTo(pad + px, y);
+          }
+          ctx.stroke();
+
+          // --- Frequency domain (bottom) ---
+          if (progress > 0.25) {
+            ctx.fillStyle = "rgba(255,255,255,0.15)";
+            ctx.font = "9px monospace";
+            ctx.fillText("frequency domain", pad, freqY - h * 0.15);
+
+            // Axis
+            ctx.strokeStyle = "rgba(255,255,255,0.12)";
+            ctx.lineWidth = 0.8;
+            ctx.beginPath();
+            ctx.moveTo(pad, freqY);
+            ctx.lineTo(pad + gw, freqY);
+            ctx.stroke();
+
+            // Frequency spikes
+            const freqAlpha = Math.min((progress - 0.25) * 2.5, 1);
+            const spikes = [
+              { freq: 0.15, amp: 0.65, color: "#c084fc" },
+              { freq: 0.38, amp: 0.38, color: "#a855f7" },
+              { freq: 0.65, amp: 0.2, color: "#7c3aed" },
+            ];
+            for (const spike of spikes) {
+              const sx = pad + spike.freq * gw;
+              const spikeH = spike.amp * h * 0.3 * freqAlpha;
+              // Glow
+              const grad = ctx.createLinearGradient(sx, freqY - spikeH, sx, freqY);
+              grad.addColorStop(0, spike.color);
+              grad.addColorStop(1, "transparent");
+              ctx.strokeStyle = spike.color;
+              ctx.lineWidth = 3;
+              ctx.globalAlpha = freqAlpha * 0.9;
+              ctx.beginPath();
+              ctx.moveTo(sx, freqY);
+              ctx.lineTo(sx, freqY - spikeH);
+              ctx.stroke();
+              // Dot at top
+              ctx.beginPath();
+              ctx.arc(sx, freqY - spikeH, 3, 0, Math.PI * 2);
+              ctx.fillStyle = spike.color;
+              ctx.fill();
+              ctx.globalAlpha = 1;
+            }
+
+            // Freq labels
+            ctx.fillStyle = "rgba(255,255,255,0.2)";
+            ctx.font = "9px monospace";
+            ctx.fillText("ω₁", pad + 0.15 * gw - 6, freqY + 14);
+            ctx.fillText("ω₂", pad + 0.38 * gw - 6, freqY + 14);
+            ctx.fillText("ω₃", pad + 0.65 * gw - 6, freqY + 14);
+          }
+
+          // Arrow between domains
+          if (progress > 0.35) {
+            const arrowAlpha = Math.min((progress - 0.35) * 3, 0.5);
+            ctx.strokeStyle = `rgba(192,132,252,${arrowAlpha})`;
+            ctx.lineWidth = 1.2;
+            ctx.setLineDash([4, 4]);
+            ctx.beginPath();
+            ctx.moveTo(w * 0.5, midY + 20);
+            ctx.lineTo(w * 0.5, freqY - h * 0.18);
+            ctx.stroke();
+            ctx.setLineDash([]);
+            // Arrow tip
+            ctx.fillStyle = `rgba(192,132,252,${arrowAlpha})`;
+            ctx.beginPath();
+            ctx.moveTo(w * 0.5, freqY - h * 0.18 + 2);
+            ctx.lineTo(w * 0.5 - 5, freqY - h * 0.18 - 6);
+            ctx.lineTo(w * 0.5 + 5, freqY - h * 0.18 - 6);
+            ctx.closePath();
+            ctx.fill();
+            // Label
+            ctx.fillStyle = `rgba(192,132,252,${arrowAlpha})`;
+            ctx.font = "10px monospace";
+            ctx.fillText("FFT", w * 0.5 + 8, (midY + freqY) * 0.5);
+          }
+        },
+      },
+      {
+        label: "⊕  Eigenvalues",
+        color: "#f97316",
+        duration: 5,
+        draw: (ctx: CanvasRenderingContext2D, w: number, h: number, progress: number) => {
+          const cx = w * 0.5, cy = h * 0.5;
+          const unit = Math.min(w, h) * 0.18;
+
+          // Grid that transforms
+          const shear = progress * 0.6;
+          ctx.strokeStyle = "rgba(255,255,255,0.05)";
+          ctx.lineWidth = 0.6;
+          for (let i = -5; i <= 5; i++) {
+            ctx.beginPath();
+            ctx.moveTo(cx + (i + (-5) * shear) * unit * 0.4, cy - 5 * unit * 0.4);
+            ctx.lineTo(cx + (i + 5 * shear) * unit * 0.4, cy + 5 * unit * 0.4);
+            ctx.stroke();
+            ctx.beginPath();
+            ctx.moveTo(cx - 5 * unit * 0.4, cy + i * unit * 0.4);
+            ctx.lineTo(cx + 5 * unit * 0.4, cy + i * unit * 0.4);
+            ctx.stroke();
+          }
+
+          // Eigenvector 1 — doesn't change direction, only scales
+          const scale1 = 1 + progress * 0.6;
+          const ev1x = 1.0 * scale1, ev1y = 0.3 * scale1;
+          ctx.beginPath();
+          ctx.strokeStyle = "#f97316";
+          ctx.lineWidth = 2.5;
+          ctx.moveTo(cx, cy);
+          ctx.lineTo(cx + ev1x * unit, cy - ev1y * unit);
+          ctx.stroke();
+          // Arrowhead
+          const a1 = Math.atan2(-ev1y, ev1x);
+          ctx.beginPath();
+          ctx.fillStyle = "#f97316";
+          ctx.moveTo(cx + ev1x * unit, cy - ev1y * unit);
+          ctx.lineTo(cx + ev1x * unit - 10 * Math.cos(a1 - 0.35), cy - ev1y * unit - 10 * Math.sin(a1 - 0.35));
+          ctx.lineTo(cx + ev1x * unit - 10 * Math.cos(a1 + 0.35), cy - ev1y * unit - 10 * Math.sin(a1 + 0.35));
+          ctx.closePath();
+          ctx.fill();
+
+          // Eigenvector 2
+          const scale2 = 1 + progress * 0.3;
+          const ev2x = -0.4 * scale2, ev2y = 1.0 * scale2;
+          ctx.beginPath();
+          ctx.strokeStyle = "#fb923c";
+          ctx.lineWidth = 2.5;
+          ctx.moveTo(cx, cy);
+          ctx.lineTo(cx + ev2x * unit, cy - ev2y * unit);
+          ctx.stroke();
+          const a2 = Math.atan2(-ev2y, ev2x);
+          ctx.beginPath();
+          ctx.fillStyle = "#fb923c";
+          ctx.moveTo(cx + ev2x * unit, cy - ev2y * unit);
+          ctx.lineTo(cx + ev2x * unit - 10 * Math.cos(a2 - 0.35), cy - ev2y * unit - 10 * Math.sin(a2 - 0.35));
+          ctx.lineTo(cx + ev2x * unit - 10 * Math.cos(a2 + 0.35), cy - ev2y * unit - 10 * Math.sin(a2 + 0.35));
+          ctx.closePath();
+          ctx.fill();
+
+          // Labels
+          if (progress > 0.3) {
+            const alpha = Math.min((progress - 0.3) * 3, 0.8);
+            ctx.fillStyle = `rgba(249,115,22,${alpha})`;
+            ctx.font = "bold 11px monospace";
+            ctx.fillText("λ₁", cx + ev1x * unit + 8, cy - ev1y * unit - 4);
+            ctx.fillStyle = `rgba(251,146,60,${alpha})`;
+            ctx.fillText("λ₂", cx + ev2x * unit + 8, cy - ev2y * unit - 4);
+          }
+
+          // Matrix notation
+          if (progress > 0.5) {
+            const alpha = Math.min((progress - 0.5) * 3, 0.55);
+            ctx.fillStyle = `rgba(255,255,255,${alpha})`;
+            ctx.font = "12px monospace";
+            ctx.fillText("Av = λv", w - 110, 28);
+          }
+
+          // Origin dot
+          ctx.beginPath();
+          ctx.arc(cx, cy, 3, 0, Math.PI * 2);
+          ctx.fillStyle = "rgba(255,255,255,0.5)";
+          ctx.fill();
+        },
+      },
+    ];
+
+    // Transition config
+    const sceneDuration = 4.5; // seconds per scene (at ~60fps)
+    const fadeTime = 0.8; // seconds for crossfade
+    const totalCycle = scenes.length * sceneDuration;
+
+    const draw = () => {
+      const w = canvas.offsetWidth;
+      const h = canvas.offsetHeight;
+      ctx.clearRect(0, 0, w, h);
+      ctx.fillStyle = "#08080e";
+      ctx.fillRect(0, 0, w, h);
+
+      t += 1 / 60;
+      const cycleT = t % totalCycle;
+      const sceneIdx = Math.floor(cycleT / sceneDuration) % scenes.length;
+      const sceneT = (cycleT % sceneDuration) / sceneDuration; // 0→1 progress within scene
+      const scene = scenes[sceneIdx];
+
+      // Fade in/out
+      let alpha = 1;
+      const fadeFrac = fadeTime / (sceneDuration);
+      if (sceneT < fadeFrac) alpha = sceneT / fadeFrac;
+      if (sceneT > 1 - fadeFrac) alpha = (1 - sceneT) / fadeFrac;
+      alpha = Math.max(0, Math.min(1, alpha));
+
+      // Ease the scene progress (excluding fade time)
+      const contentStart = fadeFrac;
+      const contentEnd = 1 - fadeFrac;
+      const contentProgress = Math.max(0, Math.min(1, (sceneT - contentStart) / (contentEnd - contentStart)));
+
+      ctx.save();
+      ctx.globalAlpha = alpha;
+      scene.draw(ctx, w, h, contentProgress);
+      ctx.restore();
+
+      // Scene label (top-left)
+      ctx.globalAlpha = alpha * 0.7;
+      ctx.fillStyle = scene.color;
+      ctx.font = "bold 11px monospace";
+      ctx.fillText(scene.label, 16, 22);
+      ctx.globalAlpha = 1;
+
+      // Progress dots (bottom-center)
+      const dotY = h - 16;
+      const dotSpacing = 14;
+      const dotsX = w * 0.5 - ((scenes.length - 1) * dotSpacing) / 2;
+      for (let i = 0; i < scenes.length; i++) {
+        ctx.beginPath();
+        ctx.arc(dotsX + i * dotSpacing, dotY, i === sceneIdx ? 3.5 : 2, 0, Math.PI * 2);
+        ctx.fillStyle = i === sceneIdx ? scene.color : "rgba(255,255,255,0.15)";
+        ctx.fill();
+      }
+
+      animId = requestAnimationFrame(draw);
+    };
+    draw();
+
+    return () => cancelAnimationFrame(animId);
+  }, []);
+
+  return (
+    <canvas
+      ref={canvasRef}
+      style={{ width: "100%", height: "100%", display: "block" }}
+    />
+  );
+}
+
+// ── Interactive graphic: Linear Transformation ──
+
+// ── Scroll-triggered fade-up animation ──
+function FadeUp({ children, delay = 0, style }: { children: React.ReactNode; delay?: number; style?: React.CSSProperties }) {
+  const ref = useRef<HTMLDivElement>(null);
+  const [visible, setVisible] = useState(false);
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => { if (entry.isIntersecting) { setVisible(true); observer.disconnect(); } },
+      { threshold: 0.12 }
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
+
+  return (
+    <div
+      ref={ref}
+      style={{
+        opacity: visible ? 1 : 0,
+        transform: visible ? "translateY(0px)" : "translateY(28px)",
+        transition: `opacity 0.7s cubic-bezier(0.16,1,0.3,1) ${delay}ms, transform 0.7s cubic-bezier(0.16,1,0.3,1) ${delay}ms`,
+        ...style,
+      }}
+    >
+      {children}
+    </div>
+  );
+}
+
+// ── Scroll-driven diagonal grid background ──
+function DiagonalGrid() {
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const onScroll = () => {
+      const offset = window.scrollY * 0.25;
+      el.style.backgroundPosition = `${offset}px ${offset}px`;
+    };
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
+  return (
+    <div
+      ref={ref}
+      style={{
+        position: "absolute",
+        inset: 0,
+        backgroundImage:
+          "repeating-linear-gradient(45deg, rgba(51,165,196,0.045) 0px, rgba(51,165,196,0.045) 1px, transparent 1px, transparent 52px)",
+        backgroundSize: "52px 52px",
+        pointerEvents: "none",
+        zIndex: 0,
+      }}
+    />
+  );
+}
+
+// ── Step Card with mouse-tracked tilt ──
+function StepCard({ step, title, description }: { step: string; title: string; description: string }) {
+  const cardRef = useRef<HTMLDivElement>(null);
+  const [tilt, setTilt] = useState({ x: 0, y: 0 });
+  const [hovered, setHovered] = useState(false);
+
+  const onMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    const rect = cardRef.current!.getBoundingClientRect();
+    const cx = rect.left + rect.width / 2;
+    const cy = rect.top + rect.height / 2;
+    const dx = (e.clientX - cx) / (rect.width / 2);
+    const dy = (e.clientY - cy) / (rect.height / 2);
+    setTilt({ x: -dy * 10, y: dx * 10 });
+  };
+
+  const onMouseLeave = () => {
+    setHovered(false);
+    setTilt({ x: 0, y: 0 });
+  };
+
+  return (
+    <div
+      ref={cardRef}
+      onMouseEnter={() => setHovered(true)}
+      onMouseMove={onMouseMove}
+      onMouseLeave={onMouseLeave}
+      style={{
+        padding: "18px",
+        background: hovered ? "rgba(51,165,196,0.04)" : "rgba(255,255,255,0.02)",
+        border: `1px solid ${hovered ? "rgba(51,165,196,0.2)" : "rgba(255,255,255,0.06)"}`,
+        borderRadius: "12px",
+        position: "relative",
+        transform: hovered
+          ? `perspective(800px) rotateX(${tilt.x}deg) rotateY(${tilt.y}deg) translateZ(40px)`
+          : "perspective(800px) rotateX(0deg) rotateY(0deg) translateZ(0px)",
+        boxShadow: hovered ? "0 12px 32px rgba(0,0,0,0.35), 0 0 16px rgba(51,165,196,0.06)" : "none",
+        transition: hovered
+          ? "border-color 0.2s ease, background 0.2s ease, box-shadow 0.2s ease"
+          : "transform 0.45s cubic-bezier(0.16,1,0.3,1), border-color 0.2s ease, background 0.2s ease, box-shadow 0.3s ease",
+        cursor: "default",
+        willChange: "transform",
+      }}
+    >
+      <div style={{
+        fontSize: "2.5rem", fontWeight: 900,
+        color: hovered ? "rgba(51,165,196,0.75)" : "rgba(51,165,196,0.18)",
+        fontFamily: "var(--font-geist-mono), monospace", letterSpacing: "-2px", lineHeight: 1,
+        marginBottom: "15px",
+        textShadow: hovered ? "0 0 10px rgba(51,165,196,0.25)" : "none",
+        transition: "color 0.3s ease, text-shadow 0.3s ease",
+      }}>
+        {step}
+      </div>
+      <h3 style={{ fontSize: "1.1rem", fontWeight: 700, color: "#ffffff", marginBottom: "12px", letterSpacing: "-0.3px" }}>{title}</h3>
+      <p style={{ fontSize: "0.85rem", color: "rgba(255,255,255,0.4)", lineHeight: 1.7 }}>{description}</p>
+    </div>
+  );
+}
+
 // ── Main Page ──
 export default function LandingPage() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [loaded, setLoaded] = useState(false);
+  const [hoveredCap, setHoveredCap] = useState<string | null>(null);
 
   useEffect(() => {
     setLoaded(true);
@@ -598,7 +1183,7 @@ export default function LandingPage() {
     <div
       style={{
         backgroundColor: "#0a0a0f",
-        fontFamily: "'Inter', 'Geist', system-ui, sans-serif",
+        fontFamily: "var(--font-space-grotesk), 'Space Grotesk', system-ui, sans-serif",
         overflowX: "hidden",
       }}
     >
@@ -669,7 +1254,7 @@ export default function LandingPage() {
               style={{
                 fontSize: "clamp(0.9rem, 2vw, 1.15rem)", color: "rgba(255,255,255,0.5)",
                 letterSpacing: "1px", marginBottom: "40px", textAlign: "center",
-                fontFamily: "'Geist Mono', monospace",
+                fontFamily: "var(--font-geist-mono), 'Geist Mono', monospace",
                 opacity: loaded ? 1 : 0,
                 transform: loaded ? "translateY(0)" : "translateY(15px)",
                 transition: "all 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.5s",
@@ -739,7 +1324,7 @@ export default function LandingPage() {
               animation: "float 2.5s ease-in-out infinite",
             }}
           >
-            <span style={{ fontSize: "0.7rem", color: "rgba(255,255,255,0.5)", letterSpacing: "2px", textTransform: "uppercase", fontFamily: "monospace" }}>
+            <span style={{ fontSize: "0.7rem", color: "rgba(255,255,255,0.5)", letterSpacing: "2px", textTransform: "uppercase", fontFamily: "var(--font-geist-mono), monospace" }}>
               Scroll Down
             </span>
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="rgba(51,165,196,0.6)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -753,111 +1338,133 @@ export default function LandingPage() {
       <section
         id="capabilities"
         style={{
-          padding: "120px 80px",
+          padding: "72px 80px",
           background: "linear-gradient(180deg, #0a0a0f 0%, #0d0d14 100%)",
           borderTop: "1px solid rgba(255,255,255,0.04)",
+          position: "relative",
+          overflow: "hidden",
         }}
       >
-        <div style={{ maxWidth: "1100px", margin: "0 auto" }}>
-          <p style={{ fontSize: "0.7rem", letterSpacing: "4px", color: "#33a5c4", textTransform: "uppercase", marginBottom: "16px", fontFamily: "monospace" }}>
-            System Capabilities
-          </p>
-          <h2 style={{ fontSize: "clamp(2rem, 4vw, 3rem)", fontWeight: 800, color: "#ffffff", letterSpacing: "-1px", marginBottom: "16px", lineHeight: 1.1 }}>
-            Everything you need to understand math
-          </h2>
-          <p style={{ fontSize: "1rem", color: "rgba(255,255,255,0.45)", marginBottom: "64px", maxWidth: "520px", lineHeight: 1.7 }}>
-            MathViz combines an AI script engine with a powerful graphing layer to generate explanations that are visual, accurate, and level-appropriate.
-          </p>
+        <DiagonalGrid />
+        <div style={{ maxWidth: "1100px", margin: "0 auto", position: "relative", zIndex: 1 }}>
+          <FadeUp>
+            <p style={{ fontSize: "0.7rem", letterSpacing: "4px", color: "#33a5c4", textTransform: "uppercase", marginBottom: "16px", fontFamily: "var(--font-geist-mono), monospace" }}>
+              System Capabilities
+            </p>
+            <h2 style={{ fontSize: "clamp(2rem, 4vw, 3rem)", fontWeight: 800, color: "#ffffff", letterSpacing: "-1px", marginBottom: "16px", lineHeight: 1.1 }}>
+              Everything you need to understand math
+            </h2>
+            <p style={{ fontSize: "1rem", color: "rgba(255,255,255,0.45)", marginBottom: "40px", maxWidth: "520px", lineHeight: 1.7 }}>
+              MathViz combines an AI script engine with a powerful graphing layer to generate explanations that are visual, accurate, and level-appropriate.
+            </p>
+          </FadeUp>
+
+          <FadeUp delay={150}>
           <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "1px", background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.06)", borderRadius: "12px", overflow: "hidden" }}>
-            {capabilities.map((cap) => (
-              <div
-                key={cap.title}
-                style={{
-                  padding: "28px 24px", background: "#0d0d14", transition: "background 0.2s ease",
-                }}
-                onMouseEnter={(e) => {
-                  (e.currentTarget as HTMLDivElement).style.background = "rgba(51,165,196,0.05)";
-                }}
-                onMouseLeave={(e) => {
-                  (e.currentTarget as HTMLDivElement).style.background = "#0d0d14";
-                }}
-              >
-                <div style={{
-                  width: "28px", height: "28px", marginBottom: "16px",
-                  border: "1px solid rgba(255,255,255,0.12)", borderRadius: "6px",
-                  display: "flex", alignItems: "center", justifyContent: "center",
-                  fontSize: "0.9rem", color: "rgba(255,255,255,0.5)",
-                }}>
-                  {cap.icon}
+            {capabilities.map((cap) => {
+              const isHovered = hoveredCap === cap.title;
+              return (
+                <div
+                  key={cap.title}
+                  onMouseEnter={() => setHoveredCap(cap.title)}
+                  onMouseLeave={() => setHoveredCap(null)}
+                  style={{
+                    padding: "28px 24px",
+                    background: "#0d0d14",
+                  }}
+                >
+                  <div style={{
+                    width: "28px", height: "28px", marginBottom: "16px",
+                    border: "1px solid rgba(255,255,255,0.12)",
+                    borderRadius: "6px",
+                    display: "flex", alignItems: "center", justifyContent: "center",
+                    fontSize: "0.9rem",
+                    color: isHovered ? "#33a5c4" : "rgba(255,255,255,0.5)",
+                    boxShadow: isHovered ? "0 0 28px rgba(51,165,196,0.7), inset 0 0 16px rgba(51,165,196,0.2)" : "none",
+                    transition: "color 0.25s ease, box-shadow 0.25s ease",
+                  }}>
+                    {cap.icon}
+                  </div>
+                  <h3 style={{
+                    fontSize: "0.9rem", fontWeight: 700,
+                    color: isHovered ? "#ffffff" : "#e2e8f0",
+                    marginBottom: "8px", letterSpacing: "-0.2px",
+                    textShadow: isHovered ? "0 0 24px rgba(255,255,255,0.6)" : "none",
+                    transition: "text-shadow 0.25s ease, color 0.25s ease",
+                  }}>{cap.title}</h3>
+                  <p style={{ fontSize: "0.8rem", color: "rgba(255,255,255,0.35)", lineHeight: 1.65 }}>{cap.description}</p>
                 </div>
-                <h3 style={{ fontSize: "0.9rem", fontWeight: 700, color: "#e2e8f0", marginBottom: "8px", letterSpacing: "-0.2px" }}>{cap.title}</h3>
-                <p style={{ fontSize: "0.8rem", color: "rgba(255,255,255,0.35)", lineHeight: 1.65 }}>{cap.description}</p>
-              </div>
-            ))}
+              );
+            })}
           </div>
+          </FadeUp>
         </div>
       </section>
 
       {/* ── How to Use ── */}
       <section
         style={{
-          padding: "120px 80px",
+          padding: "72px 80px",
           background: "#0d0d14",
           borderTop: "1px solid rgba(255,255,255,0.04)",
         }}
       >
         <div style={{ maxWidth: "1100px", margin: "0 auto" }}>
-          <p style={{ fontSize: "0.7rem", letterSpacing: "4px", color: "#33a5c4", textTransform: "uppercase", marginBottom: "16px", fontFamily: "monospace" }}>
-            How to Use
-          </p>
-          <h2 style={{ fontSize: "clamp(2rem, 4vw, 3rem)", fontWeight: 800, color: "#ffffff", letterSpacing: "-1px", marginBottom: "16px", lineHeight: 1.1 }}>
-            Up and running in seconds
-          </h2>
-          <p style={{ fontSize: "1rem", color: "rgba(255,255,255,0.45)", marginBottom: "64px", maxWidth: "520px", lineHeight: 1.7 }}>
-            No setup. No configuration. Just describe what you want to understand and MathViz handles the rest.
-          </p>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "24px" }}>
-            {howToSteps.map((s) => (
-              <div
-                key={s.step}
-                style={{
-                  padding: "36px", background: "rgba(255,255,255,0.02)",
-                  border: "1px solid rgba(255,255,255,0.06)", borderRadius: "12px",
-                  position: "relative",
-                }}
-              >
-                <div style={{
-                  fontSize: "2.5rem", fontWeight: 900, color: "rgba(51,165,196,0.12)",
-                  fontFamily: "monospace", letterSpacing: "-2px", lineHeight: 1,
-                  marginBottom: "20px",
-                }}>
-                  {s.step}
-                </div>
-                <h3 style={{ fontSize: "1.1rem", fontWeight: 700, color: "#ffffff", marginBottom: "12px", letterSpacing: "-0.3px" }}>{s.title}</h3>
-                <p style={{ fontSize: "0.85rem", color: "rgba(255,255,255,0.4)", lineHeight: 1.7 }}>{s.description}</p>
-              </div>
-            ))}
-          </div>
+          <FadeUp>
+            <p style={{ fontSize: "0.7rem", letterSpacing: "4px", color: "#33a5c4", textTransform: "uppercase", marginBottom: "12px", fontFamily: "var(--font-geist-mono), monospace" }}>
+              How to Use
+            </p>
+            <h2 style={{ fontSize: "clamp(2rem, 4vw, 3rem)", fontWeight: 800, color: "#ffffff", letterSpacing: "-1px", marginBottom: "12px", lineHeight: 1.1 }}>
+              Up and running in seconds
+            </h2>
+            <p style={{ fontSize: "1rem", color: "rgba(255,255,255,0.45)", marginBottom: "15px", maxWidth: "520px", lineHeight: 1.7 }}>
+              No setup. No configuration. Just describe what you want to understand and MathViz handles the rest.
+            </p>
+          </FadeUp>
+
+          {/* Sequence graphic strip */}
+          <FadeUp delay={100}>
+            <div style={{
+              width: "100%", height: "210px", marginBottom: "20px",
+              background: "#08080e",
+              border: "1px solid rgba(255,255,255,0.07)",
+              borderRadius: "12px", overflow: "hidden",
+              position: "relative",
+            }}>
+              <SequenceCanvas />
+            </div>
+          </FadeUp>
+
+          <FadeUp delay={200}>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "24px" }}>
+              {howToSteps.map((s) => (
+                <StepCard key={s.step} step={s.step} title={s.title} description={s.description} />
+              ))}
+            </div>
+          </FadeUp>
         </div>
       </section>
 
       {/* ── See What's Possible ── */}
       <section
         style={{
-          padding: "120px 80px",
+          padding: "72px 80px",
           background: "linear-gradient(180deg, #0d0d14 0%, #0a0a0f 100%)",
           borderTop: "1px solid rgba(255,255,255,0.04)",
         }}
       >
         <div style={{ maxWidth: "1100px", margin: "0 auto" }}>
-          <p style={{ fontSize: "0.7rem", letterSpacing: "4px", color: "#33a5c4", textTransform: "uppercase", marginBottom: "16px", fontFamily: "monospace" }}>
-            Gallery
-          </p>
-          <h2 style={{ fontSize: "clamp(2rem, 4vw, 3rem)", fontWeight: 800, color: "#ffffff", letterSpacing: "-1px", marginBottom: "64px", lineHeight: 1.1 }}>
-            See what&apos;s possible.
-          </h2>
+          <FadeUp>
+            <p style={{ fontSize: "0.7rem", letterSpacing: "4px", color: "#33a5c4", textTransform: "uppercase", marginBottom: "16px", fontFamily: "var(--font-geist-mono), monospace" }}>
+              Gallery
+            </p>
+            <h2 style={{ fontSize: "clamp(2rem, 4vw, 3rem)", fontWeight: 800, color: "#ffffff", letterSpacing: "-1px", marginBottom: "36px", lineHeight: 1.1 }}>
+              See what&apos;s possible.
+            </h2>
+          </FadeUp>
 
           {/* 2-up top row + full-width bottom */}
+          <FadeUp delay={100}>
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gridTemplateRows: "380px 260px", gap: "16px" }}>
             {galleryItems.map((item, i) => (
               <div
@@ -893,43 +1500,47 @@ export default function LandingPage() {
                   }}
                 >
                   <div>
-                    <div style={{ fontSize: "0.65rem", letterSpacing: "2px", color: "#33a5c4", textTransform: "uppercase", fontFamily: "monospace", marginBottom: "4px" }}>
+                    <div style={{ fontSize: "0.65rem", letterSpacing: "2px", color: "#33a5c4", textTransform: "uppercase", fontFamily: "var(--font-geist-mono), monospace", marginBottom: "4px" }}>
                       {item.tag}
                     </div>
                     <div style={{ fontSize: "0.95rem", fontWeight: 600, color: "#e2e8f0" }}>
                       {item.label}
                     </div>
                   </div>
-                  <span style={{ fontSize: "0.7rem", color: "rgba(255,255,255,0.3)", fontFamily: "monospace", fontStyle: "italic" }}>
+                  <span style={{ fontSize: "0.7rem", color: "rgba(255,255,255,0.3)", fontFamily: "var(--font-geist-mono), monospace", fontStyle: "italic" }}>
                     {item.description}
                   </span>
                 </div>
               </div>
             ))}
           </div>
+          </FadeUp>
 
           {/* CTA */}
+          <FadeUp delay={150}>
           <div
             style={{
-              marginTop: "64px", display: "flex", flexDirection: "column", alignItems: "center",
-              gap: "20px", padding: "64px",
+              marginTop: "36px", display: "flex", alignItems: "center", justifyContent: "space-between",
+              gap: "32px", padding: "32px 40px",
               background: "rgba(51,165,196,0.04)", border: "1px solid rgba(51,165,196,0.12)",
-              borderRadius: "16px", textAlign: "center",
+              borderRadius: "16px",
             }}
           >
-            <h3 style={{ fontSize: "1.8rem", fontWeight: 800, color: "#ffffff", letterSpacing: "-0.5px" }}>
-              Ready to visualize?
-            </h3>
-            <p style={{ fontSize: "0.95rem", color: "rgba(255,255,255,0.4)", maxWidth: "400px", lineHeight: 1.7 }}>
-              Open the app, type a prompt, and your math animation will be ready in seconds.
-            </p>
-            <Link href="/app" style={{ textDecoration: "none" }}>
+            <div>
+              <h3 style={{ fontSize: "1.4rem", fontWeight: 800, color: "#ffffff", letterSpacing: "-0.5px", marginBottom: "6px" }}>
+                Ready to visualize?
+              </h3>
+              <p style={{ fontSize: "1rem", color: "rgba(255,255,255,0.7)", lineHeight: 1.6, margin: 0 }}>
+                Type a prompt. Get <span style={{ color: "#33a5c4", fontWeight: 600 }}>AI-generated math animations</span> in seconds.
+              </p>
+            </div>
+            <Link href="/app" style={{ textDecoration: "none", flexShrink: 0 }}>
               <button
                 style={{
-                  padding: "16px 40px", fontSize: "1rem", fontWeight: 700, border: "none",
+                  padding: "14px 32px", fontSize: "1rem", fontWeight: 700, border: "none",
                   borderRadius: "8px", background: "linear-gradient(135deg, #33a5c4, #0ea5e9)",
                   color: "#000", cursor: "pointer", transition: "all 0.3s ease",
-                  letterSpacing: "0.5px", boxShadow: "0 0 30px rgba(51,165,196,0.3)",
+                  letterSpacing: "0.5px", boxShadow: "0 0 30px rgba(51,165,196,0.3)", whiteSpace: "nowrap",
                 }}
                 onMouseEnter={(e) => {
                   e.currentTarget.style.transform = "translateY(-2px)";
@@ -944,18 +1555,31 @@ export default function LandingPage() {
               </button>
             </Link>
           </div>
+          </FadeUp>
         </div>
       </section>
 
       {/* Footer */}
       <footer
         style={{
-          padding: "32px 80px", borderTop: "1px solid rgba(255,255,255,0.04)",
+          padding: "24px 80px", borderTop: "1px solid rgba(255,255,255,0.04)",
           display: "flex", justifyContent: "space-between", alignItems: "center",
         }}
       >
         <span style={{ fontSize: "0.75rem", fontWeight: 700, letterSpacing: "3px", color: "rgba(255,255,255,0.2)", textTransform: "uppercase" }}>MATHVIZ</span>
-        <span style={{ fontSize: "0.75rem", color: "rgba(255,255,255,0.15)", fontFamily: "monospace" }}>Math made visible.</span>
+        <div style={{ display: "flex", alignItems: "center", gap: "32px" }}>
+          <Link href="/app" style={{
+            fontSize: "0.75rem", color: "rgba(255,255,255,0.35)", textDecoration: "none",
+            fontFamily: "var(--font-geist-mono), monospace", letterSpacing: "0.5px",
+            transition: "color 0.2s ease",
+          }}
+            onMouseEnter={(e) => { (e.currentTarget as HTMLAnchorElement).style.color = "#33a5c4"; }}
+            onMouseLeave={(e) => { (e.currentTarget as HTMLAnchorElement).style.color = "rgba(255,255,255,0.35)"; }}
+          >
+            Open App →
+          </Link>
+          <span style={{ fontSize: "0.75rem", color: "rgba(255,255,255,0.12)", fontFamily: "var(--font-geist-mono), monospace" }}>Math made visible.</span>
+        </div>
       </footer>
 
       <style>{`

@@ -1,18 +1,19 @@
 "use client";
 
-import React, { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect } from "react";
 
 interface PromptBarProps {
     onSubmit: (text: string, mode: string) => void;
     isGenerating?: boolean;
+    loaded?: boolean;
 }
 
 
-export default function PromptBar({ onSubmit, isGenerating }: PromptBarProps) {
+export default function PromptBar({ onSubmit, isGenerating, loaded = false }: PromptBarProps) {
     const [text, setText] = useState("");
-    const [activeMode, setActiveMode] = useState("animation");
+    const [activeMode, _setActiveMode] = useState("animation");
     const [isFocused, setIsFocused] = useState(false);
-    const [detectedTopic, setDetectedTopic] = useState("");
+    const [_detectedTopic, setDetectedTopic] = useState("");
     const textareaRef = useRef<HTMLTextAreaElement>(null);
 
     // Auto-resize textarea
@@ -53,13 +54,15 @@ export default function PromptBar({ onSubmit, isGenerating }: PromptBarProps) {
                 position: "absolute",
                 top: "24px",
                 left: "50%",
-                transform: "translateX(-50%)",
+                transform: loaded ? "translateX(-50%) translateY(0)" : "translateX(-50%) translateY(-20px)",
                 width: "70%",
                 maxWidth: "700px",
                 zIndex: 20,
                 display: "flex",
                 flexDirection: "column",
                 gap: "12px",
+                opacity: loaded ? 1 : 0,
+                transition: "opacity 0.7s cubic-bezier(0.16, 1, 0.3, 1) 0.4s, transform 0.7s cubic-bezier(0.16, 1, 0.3, 1) 0.4s",
             }}
         >
             {/* Main input */}
@@ -67,15 +70,15 @@ export default function PromptBar({ onSubmit, isGenerating }: PromptBarProps) {
                 style={{
                     display: "flex",
                     alignItems: "flex-start",
-                    background: "rgba(15, 15, 22, 0.85)",
-                    backdropFilter: "blur(16px)",
-                    WebkitBackdropFilter: "blur(16px)",
-                    borderRadius: "14px",
-                    padding: "14px 18px",
+                    background: "rgba(10, 10, 15, 0.9)",
+                    backdropFilter: "blur(20px)",
+                    WebkitBackdropFilter: "blur(20px)",
+                    borderRadius: "8px",
+                    padding: "16px 20px",
                     border: "1px solid",
-                    borderColor: isFocused ? "rgba(51, 165, 196, 0.4)" : "rgba(255,255,255,0.08)",
+                    borderColor: isFocused ? "rgba(51, 165, 196, 0.5)" : "rgba(255,255,255,0.2)",
                     boxShadow: isFocused
-                        ? "0 8px 40px rgba(51, 165, 196, 0.15)"
+                        ? "0 0 30px rgba(51, 165, 196, 0.2)"
                         : "0 4px 24px rgba(0,0,0,0.4)",
                     transition: "all 0.3s ease",
                 }}
@@ -84,7 +87,7 @@ export default function PromptBar({ onSubmit, isGenerating }: PromptBarProps) {
                     ref={textareaRef}
                     value={text}
                     onChange={(e) => setText(e.target.value)}
-                    placeholder="Describe what you'd like to see..."
+                    placeholder="Describe what graphics you'd like to see"
                     onFocus={() => setIsFocused(true)}
                     onBlur={() => setIsFocused(false)}
                     onKeyDown={(e) => {
@@ -103,8 +106,9 @@ export default function PromptBar({ onSubmit, isGenerating }: PromptBarProps) {
                         resize: "none",
                         height: "28px",
                         lineHeight: "28px",
-                        fontFamily: "'Geist', 'Inter', system-ui, sans-serif",
+                        fontFamily: "var(--font-space-grotesk), 'Space Grotesk', system-ui, sans-serif",
                         overflowY: "auto",
+                        letterSpacing: "0.3px",
                     }}
                 />
                 <button
@@ -127,6 +131,7 @@ export default function PromptBar({ onSubmit, isGenerating }: PromptBarProps) {
                         transition: "all 0.2s ease",
                         flexShrink: 0,
                         marginLeft: "10px",
+                        boxShadow: text.trim() && !isGenerating ? "0 0 20px rgba(51, 165, 196, 0.3)" : "none",
                     }}
                 >
                     {isGenerating ? (

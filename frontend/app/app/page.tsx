@@ -6,7 +6,6 @@ import { CanvasController } from "../../lib/CanvasController";
 import { ScriptParser } from "../../lib/ScriptParser";
 import Sidebar from "../../components/Sidebar";
 import PromptBar from "../../components/PromptBar";
-import PlaybackControls from "../../components/PlaybackControls";
 
 function LoadingCanvas() {
     const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -132,17 +131,15 @@ export default function AppPage() {
 
     const [scriptText, setScriptText] = useState("");
     const [isGenerating, setIsGenerating] = useState(false);
+    const [loaded, setLoaded] = useState(false);
+
+    useEffect(() => {
+        setLoaded(true);
+    }, []);
 
     const [settings, setSettings] = useState({
         narration: true,
-        showComputations: true,
-        maxDuration: 15,
-        minDuration: 5,
-        font: "Times New Roman",
-        palette: "Default",
         conceptLevel: 1,
-        resolution: "1280 × 720",
-        format: "mp4",
     });
 
     // Initialize Desmos
@@ -295,10 +292,30 @@ export default function AppPage() {
             }}
         >
             {/* Sidebar */}
-            <Sidebar settings={settings} onSettingsChange={handleSettingsChange} />
+            <div style={{
+                opacity: loaded ? 1 : 0,
+                transform: loaded ? "translateX(0)" : "translateX(-24px)",
+                transition: "all 0.7s cubic-bezier(0.16, 1, 0.3, 1) 0.1s",
+                display: "flex",
+                flexShrink: 0,
+            }}>
+                <Sidebar
+                    settings={settings}
+                    onSettingsChange={handleSettingsChange}
+                    scriptText={scriptText}
+                    isRunning={isRunning}
+                    onPlay={() => parseAndExecuteScript()}
+                    onStop={handleStopScript}
+                />
+            </div>
 
             {/* Main visualization area */}
-            <div style={{ flex: 1, height: "100vh", position: "relative" }}>
+            <div style={{
+                flex: 1, height: "100vh", position: "relative",
+                opacity: loaded ? 1 : 0,
+                transform: loaded ? "translateY(0)" : "translateY(16px)",
+                transition: "all 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.25s",
+            }}>
                 {/* Layer 1: Desmos Calculator */}
                 <div
                     style={{
@@ -306,7 +323,7 @@ export default function AppPage() {
                         top: 0,
                         left: 0,
                         right: 0,
-                        bottom: "48px",
+                        bottom: 0,
                         opacity: activeView === "desmos" ? 1 : 0,
                         pointerEvents: activeView === "desmos" ? "auto" : "none",
                         transition: "opacity 0.6s ease-in-out",
@@ -324,9 +341,9 @@ export default function AppPage() {
                         top: 0,
                         left: 0,
                         right: 0,
-                        bottom: "48px",
+                        bottom: 0,
                         width: "100%",
-                        height: "calc(100% - 48px)",
+                        height: "100%",
                         opacity: activeView === "equations" ? 1 : 0,
                         pointerEvents: activeView === "equations" ? "auto" : "none",
                         transition: "opacity 0.6s ease-in-out",
@@ -336,7 +353,7 @@ export default function AppPage() {
                 />
 
                 {/* Prompt Bar */}
-                <PromptBar onSubmit={handleCommandSubmit} isGenerating={isGenerating} />
+                <PromptBar onSubmit={handleCommandSubmit} isGenerating={isGenerating} loaded={loaded} />
 
                 {/* Loading overlay */}
                 {isGenerating && (
@@ -393,13 +410,6 @@ export default function AppPage() {
                     </div>
                 )}
 
-                {/* Playback Controls */}
-                <PlaybackControls
-                    isRunning={isRunning}
-                    onPlay={() => parseAndExecuteScript()}
-                    onStop={handleStopScript}
-                    totalTime={settings.maxDuration}
-                />
             </div>
 
             <style>{`
